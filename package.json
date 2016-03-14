@@ -1,0 +1,21 @@
+{
+    "version": "0.1",
+    "name": "cordova-plugin-flic",
+    "cordova_name": "Flic",
+    "description": "A Cordova plugin providing access to the Flic SDK",
+    "license": "Apache 2.0",
+    "repo": "",
+    "issue": "",
+    "keywords": [
+        "cordova",
+        "flic",
+        "smart",
+        "button",
+        "sdk"
+    ],
+    "platforms": [
+        "android",
+    ],
+    "engines": [],
+    "englishdoc": ""
+}
