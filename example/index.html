@@ -19,53 +19,34 @@
 -->
 <html>
     <head>
-    <!--
-    Customize this policy to fit your own app's needs. For more guidance, see:
-        https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
-    Some notes:
-        * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-        * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-        * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-        * Enable inline JS: add 'unsafe-inline' to default-src
-    -->
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         <link rel="stylesheet" type="text/css" href="css/index.css">
-        <title>Flic sample</title>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" charset="utf-8" src="FeatherEditor.js"></script>
-        <script>
-            var appId = "dbcce1f9-c4b9-41c1-89fb-2f36c8577706";
-            var appSecret = "f17c4448-093b-4ba8-951a-bb40113b1900";
-            var appName = "Table Football";
-            // Wait for Cordova to connect with the device
-            //
-            document.addEventListener("deviceready",onDeviceReady,false);
-            // Cordova is ready to be used!
-            //
-            function onDeviceReady() {
-                Flic.setAppCredentials(imageURI, {
-                    success: function(result) {
-                        alert('Flic Success');
-                    },
-                    error: function(message) {
-                        alert('Flic Fail');
-                        alert(message);
-                    }
-               });
-            }
-            // A button will call this function
-            //
-            function start() {
-
-            }
-        </script>
+        <title>Hello Flic</title>
     </head>
     <body>
         <div class="app">
-            <!--button onclick="start()">Start</button-->
+            <h1>Apache Cordova</h1>
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Flic</p>
+                <p class="event received">Flic is Ready</p>
+            </div>
+            <button id="myBtn1">GetButtons</button>
+            <button id="myBtn2">GrabButton</button>
         </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="Flic.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>
