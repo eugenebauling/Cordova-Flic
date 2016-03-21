@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.public void 0" and call super class "super.onActivityResult(requestCode, resultCode, data);"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-flic"
 	version="0.2.11">
@@ -19,9 +19,11 @@
 		<!-- tasks 
 			1. Config-file platforms/android/build.gradle
 			1.1 Append 'maven { url "https://jitpack.io" }' to root repositories
-			1.2 Append 'compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe' to root dependencies
+			1.2 Append "compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'" to root dependencies
 			2. Config-file platforms/android/AndroidManifest.xml
 			2.1 Set '<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="23" />'
+			3. Config-file platforms/android/src/io/cordova/hellocordova/MainActivity.java
+			3.1 Override public void onActivityResult and call super class "super.onActivityResult(requestCode, resultCode, data);"
 		-->
 		<config-file target="res/xml/config.xml" parent="/*">
 			<preference name="android-minSdkVersion" value="19" />
