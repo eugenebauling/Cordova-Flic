@@ -1,6 +1,17 @@
 # Cordova-Flic
 A Cordova plugin providing access to the Flic SDK
 
+# Installation
+Some manual adjustments after plugin install are still required:
+
+1. Config-file platforms/android/build.gradle
+  * Append 'maven { url "https://jitpack.io" }' to root repositories
+  * Append "compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'" to root dependencies
+2. Config-file platforms/android/AndroidManifest.xml
+  * Set '< uses-sdk android:minSdkVersion="19" android:targetSdkVersion="23" />'
+3. Config-file platforms/android/src/io/cordova/hellocordova/MainActivity.java
+  * Override public void onActivityResult and call super class "super.onActivityResult(requestCode, resultCode, data);"
+
 # Plugin API
 It has been currently stripped to the minimum needed from a Javascript app.
 
