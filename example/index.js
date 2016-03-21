@@ -27,6 +27,8 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        document.getElementById("myBtn1").addEventListener("click", this.getButtons);
+        document.getElementById("myBtn2").addEventListener("click", this.grabButton);
     },
     // deviceready Event Handler
     //
@@ -55,14 +57,17 @@ var app = {
                     console.log('Flic init succeeded');
                     listeningElement.setAttribute('style', 'display:none;');
                     receivedElement.setAttribute('style', 'display:block;');
-                    /*Flic.grabButton({
-                        success: function(result) {
-                            console.log("Flic button grabbed:" + JSON.stringify(result));
+
+                    Flic.getKnownButtons({
+                        success: function(buttons) {
+                            console.log('Flic getKnownButtons succeeded');
+                            console.log('Flic known buttons: ' + JSON.stringify(buttons));
                         },
                         error: function(message) {
-                            console.log('Flic grabButton failed: ' + message);
+                            console.log('Flic getKnownButtons failed: ' + message);
                         }
-                    });*/
+                    });
+
                 },
                 error: function(message) {
                     console.log('Flic init failed: ' + message);
@@ -71,6 +76,52 @@ var app = {
         } catch (e) {
             console.log('Flic exception: ' + e.message);
         }
+
+        setInterval(function() {
+            Flic.getLastButtonEvent({
+                success: function(result) {
+                    //console.log('Flic getLastButtonEvent succeeded');
+                    //console.log('Flic getLastButtonEvent: ' + JSON.stringify(result));
+                    if (result.button.color == "green") {
+                        var txt = "Green button " + result.event;
+                        console.log(txt);
+                        document.getElementById("greenButton").innerHTML = txt;
+                    } else if (result.button.color == "turquoise") {
+                        var txt = "Turquoise button " + result.event;
+                        console.log(txt);
+                        document.getElementById("turquoiseButton").innerHTML = txt;
+                    }
+                },
+                error: function(message) {
+                    console.log('Flic getLastButtonEvent failed: ' + message);
+                }
+            });
+        }, 1000);
+
+    },
+
+    getButtons: function () {
+        Flic.getKnownButtons({
+            success: function(buttons) {
+                console.log('Flic getKnownButtons succeeded');
+                console.log('Flic known buttons: ' + JSON.stringify(buttons));
+            },
+            error: function(message) {
+                console.log('Flic getKnownButtons failed: ' + message);
+            }
+        });
+    },
+
+    grabButton: function () {
+        Flic.grabButton({
+            success: function(result) {
+                console.log('Flic grabButton succeeded');
+                console.log('Flic grabbed button: ' + JSON.stringify(result));
+            },
+            error: function(message) {
+                console.log('Flic grabButton failed: ' + message);
+            }
+        });
 
     }
 };
