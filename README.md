@@ -40,6 +40,8 @@ The following functions are available:
 # Roadmap
 
 * Add an event mode where one can register flic events in Javascript using document.addEventListener
+* Complete plugin.xml for a total automatical installation
+* Publish plugin in the public plugin registry
 * Implement function forgetButton(buttonId). Forget a button, which will never be associated to the app until it is grabbed again.
 * Implement function enableButton(buttonId). Subscribe button to single click, double click and hold events.
 * Implement function disableButton(buttonId). Unsubscribe button to single click, double click and hold events. Unlike when forgetting the button, the button will still be associated the app.
