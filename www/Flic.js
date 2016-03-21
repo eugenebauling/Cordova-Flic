@@ -1,3 +1,14 @@
+/**
+ * A Cordova plugin providing access to the Flic SDK
+ * 
+ * This is the first working version, using an ugly pull mode (asking for last pushed button)
+ * 
+ * Please check the following links to evolve the plugin to an event mode:
+ * https://github.com/MobileChromeApps/cordova-plugin-background-app
+ * https://github.com/MobileChromeApps/cordova-plugin-background-app/blob/master/example-app/www/index.html
+ * https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-alarms
+ */
+
 cordova.define("cordova-plugin-flic.Flic", function(require, exports, module) {
 var exec = require('cordova');
 
@@ -35,20 +46,10 @@ Flic.prototype.init = function(appId, appSecret, appName, options) {
  *  - options.success: called on function success
  *  - options.error: called on function error
  */
-/*Flic.prototype.getKnownButtons = function(options) {
+Flic.prototype.getKnownButtons = function(options) {
 	console.log("Flic.js: getKnownButtons");
 
-	cordova.exec(options.success, options.error, "Flic", "getKnownButtons");
-}*/
-Flic.prototype.getKnownButtons = function() {
-	console.log("Flic.js: getKnownButtons");
-
-	cordova.exec(function(result){
-		/*alert("OK" + result);*/
-	},
-	function(error){
-		/*alert("Error" + error);*/
-	},"Flic", "getKnownButtons", [{message: null}]);
+	cordova.exec(options.success, options.error, "Flic", "getKnownButtons", []);
 }
 
 /**
@@ -59,22 +60,15 @@ Flic.prototype.getKnownButtons = function() {
  *  - options.success: called on function success
  *  - options.error: called on function error
  */
-/*Flic.prototype.grabButton = function(options) {
+Flic.prototype.grabButton = function(options) {
 	console.log("Flic.js: grabButton");
 
-	cordova.exec(options.success, options.error, "Flic", "grabButton");
-}*/
-
-Flic.prototype.grabButton = function() {
-	console.log("Flic.js: grabButton");
-
-	cordova.exec(function(result){
-		/*alert("OK" + result);*/
-	},
-	function(error){
-		/*alert("Error" + error);*/
-	},"Flic", "grabButton", [{message: null}]);
+	cordova.exec(options.success, options.error, "Flic", "grabButton", []);
 }
+
+Flic.prototype.getLastButtonEvent = function(options) {
+    cordova.exec(options.success, options.error, "Flic", "getLastButtonEvent", []);
+};
 
 /**
  * Forget button
