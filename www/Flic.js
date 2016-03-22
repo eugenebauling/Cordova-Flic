@@ -8,7 +8,6 @@
  * https://github.com/MobileChromeApps/cordova-plugin-background-app/blob/master/example-app/www/index.html
  * https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-alarms
  */
-
 cordova.define("cordova-plugin-flic.Flic", function(require, exports, module) {
 var exec = require('cordova');
 
@@ -66,9 +65,17 @@ Flic.prototype.grabButton = function(options) {
 	cordova.exec(options.success, options.error, "Flic", "grabButton", []);
 }
 
+/**
+ * Get last button event
+ * Returns the last button pressed and the event
+ * Input params:
+ * - options: a properties object with 2 function callbacks
+ *  - options.success: called on function success
+ *  - options.error: called on function error
+ */
 Flic.prototype.getLastButtonEvent = function(options) {
     cordova.exec(options.success, options.error, "Flic", "getLastButtonEvent", []);
-};
+}
 
 /**
  * Forget button

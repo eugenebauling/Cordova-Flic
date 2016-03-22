@@ -1,19 +1,12 @@
 package com.jguix.cordova;
 
-import org.apache.cordova.CordovaWebView;
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaInterface;
-
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 
-import org.apache.cordova.PluginManager;
-import org.apache.cordova.PluginResult;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaInterface;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,7 +59,6 @@ public class Flic extends CordovaPlugin {
     @Override
     public boolean execute(final String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         Log.v(LOG_TAG, "Flic action: " + action);
-        this.callbackContext = callbackContext;
         if (ACTION_INIT.equals(action)) {
             // Get app credentials from arguments
             final JSONObject options = args.getJSONObject(0);
@@ -105,6 +97,8 @@ public class Flic extends CordovaPlugin {
 
             return true;
         } else if (ACTION_GRAB_BUTTON.equals(action)) {
+            // Keeps track of invoking callback context for later use
+            this.callbackContext = callbackContext;
             // Tells cordova to send the callback to this plugin
             this.cordova.setActivityResultCallback(this);
             // Initiate grab button
