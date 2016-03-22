@@ -2,7 +2,7 @@
 A Cordova plugin providing access to the Flic SDK
 
 # Installation
-Some manual adjustments after plugin install are still required:
+Some manual adjustments after plugin install and build are still required:
 
 1. Config-file platforms/android/src/io/cordova/hellocordova/MainActivity.java
   * Override public void onActivityResult and call super class "super.onActivityResult(requestCode, resultCode, data);"
