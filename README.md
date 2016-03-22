@@ -2,10 +2,8 @@
 A Cordova plugin providing access to the Flic SDK
 
 # Installation
-Some manual adjustments after plugin install and build are still required:
-
-1. Config-file platforms/android/src/io/cordova/hellocordova/MainActivity.java
-  * Override public void onActivityResult and call super class "super.onActivityResult(requestCode, resultCode, data);"
+    $ cordova plugin add https://github.com/jguix/Cordova-Flic
+    $ cordova build android
 
 # Plugin API
 It has been currently stripped to the minimum needed from a Javascript app.
@@ -32,10 +30,48 @@ The following functions are available:
     * options.success: called on function success
     * options.error: called on function error
 
+# Sample usage code
+
+    Flic.init(appId, appSecret, appName, {
+            success: function(result) {
+                console.log('Flic init succeeded');
+
+                Flic.getKnownButtons({
+                    success: function(buttons) {
+                        console.log('Flic getKnownButtons succeeded');
+                        console.log('Flic known buttons: ' + JSON.stringify(buttons));
+                    },
+                    error: function(message) {
+                        console.log('Flic getKnownButtons failed: ' + message);
+                    }
+                });
+
+            },
+            error: function(message) {
+                console.log('Flic init failed: ' + message);
+            }
+         });
+
+    // Horrible hack, waiting for event implementation
+    setInterval(function() {
+            Flic.getLastButtonEvent({
+                success: function(result) {
+                    if (result.button.color == "green") {
+                        console.log("Green button " + result.event);
+                    } else if (result.button.color == "turquoise") {
+                        console.log("Turquoise button " + result.event);
+                    }
+                },
+                error: function(message) {
+                    console.log('Flic getLastButtonEvent failed: ' + message);
+                }
+            });
+        }, 1000);
+
 # Roadmap
+Next steps:
 
 * Add an event mode where one can register flic events in Javascript using document.addEventListener
-* Complete plugin.xml for a total automatic installation
 * Publish plugin in the public plugin registry
 * Implement function forgetButton(buttonId). Forget a button, which will never be associated to the app until it is grabbed again.
 * Implement function enableButton(buttonId). Subscribe button to single click, double click and hold events.
