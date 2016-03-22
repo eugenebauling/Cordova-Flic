@@ -4,12 +4,7 @@ A Cordova plugin providing access to the Flic SDK
 # Installation
 Some manual adjustments after plugin install are still required:
 
-1. Config-file platforms/android/build.gradle
-  * Append 'maven { url "https://jitpack.io" }' to root repositories
-  * Append "compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'" to root dependencies
-2. Config-file platforms/android/AndroidManifest.xml
-  * Set '< uses-sdk android:minSdkVersion="19" android:targetSdkVersion="23" />'
-3. Config-file platforms/android/src/io/cordova/hellocordova/MainActivity.java
+1. Config-file platforms/android/src/io/cordova/hellocordova/MainActivity.java
   * Override public void onActivityResult and call super class "super.onActivityResult(requestCode, resultCode, data);"
 
 # Plugin API
@@ -40,7 +35,7 @@ The following functions are available:
 # Roadmap
 
 * Add an event mode where one can register flic events in Javascript using document.addEventListener
-* Complete plugin.xml for a total automatical installation
+* Complete plugin.xml for a total automatic installation
 * Publish plugin in the public plugin registry
 * Implement function forgetButton(buttonId). Forget a button, which will never be associated to the app until it is grabbed again.
 * Implement function enableButton(buttonId). Subscribe button to single click, double click and hold events.
