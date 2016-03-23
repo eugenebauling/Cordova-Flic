@@ -7,6 +7,7 @@
  * https://github.com/MobileChromeApps/cordova-plugin-background-app
  * https://github.com/MobileChromeApps/cordova-plugin-background-app/blob/master/example-app/www/index.html
  * https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-alarms
+ * https://github.com/apache/cordova-plugin-network-information
  */
 cordova.define("cordova-plugin-flic.Flic", function(require, exports, module) {
 var exec = require('cordova');
