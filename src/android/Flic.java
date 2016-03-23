@@ -220,6 +220,10 @@ public class Flic extends CordovaPlugin {
             Log.d(LOG_TAG, "Received event: " + event);
             lastPressedButton = button;
             lastEvent = event;
+            /*
+             * // Send pause event to JavaScript
+             * this.mainView.loadUrl("javascript:try{cordova.fireDocumentEvent('pause');}catch(e){console.log('exception firing pause event from native');};");
+             */
         }
 
     };

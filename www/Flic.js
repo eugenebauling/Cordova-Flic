@@ -3,11 +3,9 @@
  * 
  * This is the first working version, using an ugly pull mode (asking for last pushed button)
  * 
- * Please check the following links to evolve the plugin to an event mode:
- * https://github.com/MobileChromeApps/cordova-plugin-background-app
- * https://github.com/MobileChromeApps/cordova-plugin-background-app/blob/master/example-app/www/index.html
- * https://github.com/MobileChromeApps/cordova-plugin-chrome-apps-alarms
+ * Please check the following links to evolve the plugin to an event mode using cordova.fireDocumentEvent():
  * https://github.com/apache/cordova-plugin-network-information
+ * https://github.com/apache/cordova-plugin-network-information/blob/master/www/network.js
  */
 cordova.define("cordova-plugin-flic.Flic", function(require, exports, module) {
 var exec = require('cordova');
