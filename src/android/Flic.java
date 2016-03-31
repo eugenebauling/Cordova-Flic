@@ -11,7 +11,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.InterruptedException;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import io.flic.lib.FlicButton;
 import io.flic.lib.FlicButtonCallback;
@@ -32,10 +34,12 @@ public class Flic extends CordovaPlugin {
     private static final String ACTION_ENABLE_BUTTON = "enableButton";
     private static final String ACTION_DISABLE_BUTTON = "disableButton";
     private static final String ACTION_GET_LAST_BUTTON_EVENT = "getLastButtonEvent";
+    private static final String ACTION_GET_BUTTON_EVENT = "getButtonEvent";
     private FlicManager manager;
     private CallbackContext callbackContext;
     private FlicButton lastPressedButton = null;
     private String lastEvent = "none";
+    private final Semaphore semaphore = new Semaphore(1, true);
 
     /**
      * Constructor.
@@ -159,6 +163,21 @@ public class Flic extends CordovaPlugin {
 
             return true;
 
+        } else if (ACTION_GET_BUTTON_EVENT.equals(action)) {
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException e) {
+            }
+            JSONObject result = new JSONObject();
+            JSONObject jsonButton;
+            jsonButton = createJSONButton(lastPressedButton);
+            result.put("button", jsonButton);
+            result.put("event", lastEvent);
+            lastPressedButton = null;
+            lastEvent = "none";
+            callbackContext.success(result);
+
+            return true;
         } else {
             callbackContext.error("Flic." + action + " is not a supported function.");
             return false;
@@ -220,6 +239,8 @@ public class Flic extends CordovaPlugin {
             Log.d(LOG_TAG, "Received event: " + event);
             lastPressedButton = button;
             lastEvent = event;
+            // Unlock semaphore
+            semaphore.release();
             /*
              * // Send pause event to JavaScript
              * this.mainView.loadUrl("javascript:try{cordova.fireDocumentEvent('pause');}catch(e){console.log('exception firing pause event from native');};");

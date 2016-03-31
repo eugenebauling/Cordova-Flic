@@ -76,6 +76,10 @@ Flic.prototype.getLastButtonEvent = function(options) {
     cordova.exec(options.success, options.error, "Flic", "getLastButtonEvent", []);
 }
 
+Flic.prototype.getButtonEvent = function(options) {
+    cordova.exec(options.success, options.error, "Flic", "getButtonEvent", []);
+}
+
 /**
  * Forget button
  * Input params:
