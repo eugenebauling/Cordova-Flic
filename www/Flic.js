@@ -6,9 +6,12 @@
  * Please check the following links to evolve the plugin to an event mode using cordova.fireDocumentEvent():
  * https://github.com/apache/cordova-plugin-network-information
  * https://github.com/apache/cordova-plugin-network-information/blob/master/www/network.js
+ * https://github.com/apache/cordova-plugin-network-information/blob/master/src/android/NetworkManager.java
  */
 cordova.define("cordova-plugin-flic.Flic", function(require, exports, module) {
-var exec = require('cordova');
+var exec = require('cordova/exec'),
+    cordova = require('cordova'),
+    channel = require('cordova/channel');
 
 function Flic() { 
 	console.log("Flic.js: is created");
@@ -27,7 +30,7 @@ function Flic() {
 Flic.prototype.init = function(appId, appSecret, appName, options) {
 	console.log("Flic.js: init");
 
-	cordova.exec(options.success, options.error, "Flic", "init", [
+	exec(options.success, options.error, "Flic", "init", [
 		{
 			appId: appId,
 			appSecret: appSecret,
@@ -47,7 +50,7 @@ Flic.prototype.init = function(appId, appSecret, appName, options) {
 Flic.prototype.getKnownButtons = function(options) {
 	console.log("Flic.js: getKnownButtons");
 
-	cordova.exec(options.success, options.error, "Flic", "getKnownButtons", []);
+	exec(options.success, options.error, "Flic", "getKnownButtons", []);
 }
 
 /**
@@ -61,7 +64,7 @@ Flic.prototype.getKnownButtons = function(options) {
 Flic.prototype.grabButton = function(options) {
 	console.log("Flic.js: grabButton");
 
-	cordova.exec(options.success, options.error, "Flic", "grabButton", []);
+	exec(options.success, options.error, "Flic", "grabButton", []);
 }
 
 /**
@@ -73,11 +76,11 @@ Flic.prototype.grabButton = function(options) {
  *  - options.error: called on function error
  */
 Flic.prototype.getLastButtonEvent = function(options) {
-    cordova.exec(options.success, options.error, "Flic", "getLastButtonEvent", []);
+    exec(options.success, options.error, "Flic", "getLastButtonEvent", []);
 }
 
 Flic.prototype.getButtonEvent = function(options) {
-    cordova.exec(options.success, options.error, "Flic", "getButtonEvent", []);
+    exec(options.success, options.error, "Flic", "getButtonEvent", []);
 }
 
 /**
@@ -91,7 +94,7 @@ Flic.prototype.getButtonEvent = function(options) {
 /*Flic.prototype.forgetButton = function(buttonId, options) {
 	console.log("Flic.js: forgetButton");
 
-	cordova.exec(options.success, options.error, "Flic", "forgetButton", [
+	exec(options.success, options.error, "Flic", "forgetButton", [
 		{
 			buttonId: buttonId
 		}
@@ -109,7 +112,7 @@ Flic.prototype.getButtonEvent = function(options) {
 /*Flic.prototype.enableButton = function(buttonId, options) {
 	console.log("Flic.js: enableButton");
 
-	cordova.exec(options.success, options.error, "Flic", "enableButton", [
+	exec(options.success, options.error, "Flic", "enableButton", [
 		{
 			buttonId: buttonId
 		}
@@ -128,7 +131,7 @@ Flic.prototype.getButtonEvent = function(options) {
 /*Flic.prototype.disableButton = function(buttonId, options) {
 	console.log("Flic.js: disableButton");
 
-	cordova.exec(options.success, options.error, "Flic", "disableButton", [
+	exec(options.success, options.error, "Flic", "disableButton", [
 		{
 			buttonId: buttonId
 		}
@@ -136,6 +139,28 @@ Flic.prototype.getButtonEvent = function(options) {
 }*/
 
 var flic = new Flic();
+
+// Recursive function for calling the queue event endlessly
+var callFlicEvent = function() {
+    flic.getButtonEvent({
+        success: function(event) {
+            console.log('Flic getButtonEvent succeeded');
+            console.log('Flic event: ' + JSON.stringify(event));
+            cordova.fireDocumentEvent("flicButtonPressed", event);
+            callFlicEvent();
+        },
+        error: function(message) {
+            console.log('Flic getButtonEvent failed: ' + message);
+            callFlicEvent();
+        }
+    });
+}
+
+// Setup of event queue
+channel.onCordovaReady.subscribe(function() {
+	callFlicEvent();
+});
+
 module.exports = flic;
 
 });

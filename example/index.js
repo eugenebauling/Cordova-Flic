@@ -27,8 +27,9 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        document.addEventListener('flicButtonPressed', this.onFlicButtonPressed, false);
         document.getElementById("myBtn1").addEventListener("click", this.getButtons);
-        document.getElementById("myBtn2").addEventListener("click", this.grabButton);
+        document.getElementById("myBtn2").addEventListener("click", this.grabButton);        
     },
     // deviceready Event Handler
     //
@@ -77,6 +78,7 @@ var app = {
             console.log('Flic exception: ' + e.message);
         }
 
+        /*
         setInterval(function() {
             Flic.getLastButtonEvent({
                 success: function(result) {
@@ -97,7 +99,22 @@ var app = {
                 }
             });
         }, 1000);
+        */
 
+    },
+
+    onFlicButtonPressed: function(result) {
+        //console.log('Flic getLastButtonEvent succeeded');
+        //console.log('Flic getLastButtonEvent: ' + JSON.stringify(result));
+        if (result.button.color == "green") {
+            var txt = "Green button " + result.event;
+            console.log(txt);
+            document.getElementById("greenButton").innerHTML = txt;
+        } else if (result.button.color == "turquoise") {
+            var txt = "Turquoise button " + result.event;
+            console.log(txt);
+            document.getElementById("turquoiseButton").innerHTML = txt;
+        }
     },
 
     getButtons: function () {
