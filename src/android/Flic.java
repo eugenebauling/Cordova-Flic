@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import java.lang.InterruptedException;
 import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CountDownLatch;
 
 import io.flic.lib.FlicButton;
 import io.flic.lib.FlicButtonCallback;
@@ -39,7 +39,7 @@ public class Flic extends CordovaPlugin {
     private CallbackContext callbackContext;
     private FlicButton lastPressedButton = null;
     private String lastEvent = "none";
-    private final Semaphore semaphore = new Semaphore(1, true);
+    private static CountDownLatch waitSignal;
 
     /**
      * Constructor.
@@ -165,8 +165,12 @@ public class Flic extends CordovaPlugin {
 
         } else if (ACTION_GET_BUTTON_EVENT.equals(action)) {
             try {
-                semaphore.acquire();
+                // Set countdown lock to 1
+                waitSignal = new CountDownLatch(1);
+                // Wait for button event to happen
+                waitSignal.await();
             } catch (InterruptedException e) {
+                e.printStackTrace();
             }
             JSONObject result = new JSONObject();
             JSONObject jsonButton;
@@ -239,8 +243,8 @@ public class Flic extends CordovaPlugin {
             Log.d(LOG_TAG, "Received event: " + event);
             lastPressedButton = button;
             lastEvent = event;
-            // Unlock semaphore
-            semaphore.release();
+            // Release lock so waiting thread can continue
+            waitSignal.countDown();
             /*
              * // Send pause event to JavaScript
              * this.mainView.loadUrl("javascript:try{cordova.fireDocumentEvent('pause');}catch(e){console.log('exception firing pause event from native');};");
