@@ -1,21 +1,26 @@
 {
-    "version": "0.1",
-    "name": "cordova-plugin-flic",
-    "cordova_name": "Flic",
-    "description": "A Cordova plugin providing access to the Flic SDK",
-    "license": "Apache 2.0",
-    "repo": "",
-    "issue": "",
-    "keywords": [
-        "cordova",
-        "flic",
-        "smart",
-        "button",
-        "sdk"
-    ],
+  "name": "cordova-plugin-flic",
+  "version": "0.2.11",
+  "description": "A Cordova plugin providing access to the Flic SDK",
+  "cordova": {
+    "id": "cordova-plugin-flic",
     "platforms": [
-        "android",
-    ],
-    "engines": [],
-    "englishdoc": ""
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/jguix/Cordova-Flic"
+  },
+  "keywords": [
+    "cordova",
+    "flic",
+    "smart",
+    "button",
+    "sdk",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "jguix",
+  "license": "Apache 2.0"
 }
