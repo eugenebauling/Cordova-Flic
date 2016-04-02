@@ -32,6 +32,7 @@ The following functions are available:
 
 # Sample usage code
 
+    // Init flic
     Flic.init(appId, appSecret, appName, {
             success: function(result) {
                 console.log('Flic init succeeded');
@@ -52,26 +53,16 @@ The following functions are available:
             }
          });
 
-    // Horrible hack, waiting for event implementation
-    setInterval(function() {
-            Flic.getLastButtonEvent({
-                success: function(result) {
-                    if (result.button.color == "green") {
-                        console.log("Green button " + result.event);
-                    } else if (result.button.color == "turquoise") {
-                        console.log("Turquoise button " + result.event);
-                    }
-                },
-                error: function(message) {
-                    console.log('Flic getLastButtonEvent failed: ' + message);
-                }
-            });
-        }, 1000);
+
+    // Event subscription
+    document.addEventListener('flicButtonPressed', function (result) {
+        console.log(result.button.color + " button received " + result.event + " event");
+    }, false);
 
 # Roadmap
 Next steps:
 
-* Add an event mode where one can register flic events in Javascript using document.addEventListener
+* Modify android:minSdkVersion="19" in AndroidManifest.xml
 * Implement function forgetButton(buttonId). Forget a button, which will never be associated to the app until it is grabbed again.
 * Implement function enableButton(buttonId). Subscribe button to single click, double click and hold events.
 * Implement function disableButton(buttonId). Unsubscribe button to single click, double click and hold events. Unlike when forgetting the button, the button will still be associated the app.

@@ -156,9 +156,11 @@ var callFlicEvent = function() {
     });
 }
 
+
 // Setup of event queue
 channel.onCordovaReady.subscribe(function() {
 	callFlicEvent();
+	console.log("Call flicButtonEvent");
 });
 
 module.exports = flic;

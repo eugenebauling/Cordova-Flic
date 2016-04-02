@@ -111,7 +111,7 @@ var app = {
             console.log(txt);
             document.getElementById("greenButton").innerHTML = txt;
         } else if (result.button.color == "turquoise") {
-            var txt = "Turquoise button " + result.event;
+            var txt = "Turquoise button " + result.event + "!";
             console.log(txt);
             document.getElementById("turquoiseButton").innerHTML = txt;
         }

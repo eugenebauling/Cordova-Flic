@@ -37,6 +37,7 @@ public class Flic extends CordovaPlugin {
     private static final String ACTION_GET_BUTTON_EVENT = "getButtonEvent";
     private FlicManager manager;
     private CallbackContext callbackContext;
+    private CallbackContext buttonEventCallbackContext;
     private FlicButton lastPressedButton = null;
     private String lastEvent = "none";
     private static CountDownLatch waitSignal;
@@ -164,7 +165,9 @@ public class Flic extends CordovaPlugin {
             return true;
 
         } else if (ACTION_GET_BUTTON_EVENT.equals(action)) {
-            try {
+            // Keeps track of invoking callback context for later use
+            this.buttonEventCallbackContext = callbackContext;
+            /*try {
                 // Set countdown lock to 1
                 waitSignal = new CountDownLatch(1);
                 // Wait for button event to happen
@@ -180,7 +183,7 @@ public class Flic extends CordovaPlugin {
             lastPressedButton = null;
             lastEvent = "none";
             callbackContext.success(result);
-
+            */
             return true;
         } else {
             callbackContext.error("Flic." + action + " is not a supported function.");
@@ -243,8 +246,23 @@ public class Flic extends CordovaPlugin {
             Log.d(LOG_TAG, "Received event: " + event);
             lastPressedButton = button;
             lastEvent = event;
+
+            try {
+                JSONObject result = new JSONObject();
+                JSONObject jsonButton;
+                jsonButton = createJSONButton(lastPressedButton);
+                result.put("button", jsonButton);
+                result.put("event", event);
+                if (buttonEventCallbackContext != null) {
+                    buttonEventCallbackContext.success(result);
+                    buttonEventCallbackContext = null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             // Release lock so waiting thread can continue
-            waitSignal.countDown();
+            //waitSignal.countDown();
             /*
              * // Send pause event to JavaScript
              * this.mainView.loadUrl("javascript:try{cordova.fireDocumentEvent('pause');}catch(e){console.log('exception firing pause event from native');};");
