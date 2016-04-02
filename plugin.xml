@@ -22,12 +22,10 @@
 			1.2 Append "compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'" to root dependencies
 			2. Config-file platforms/android/AndroidManifest.xml
 			2.1 Set '<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="23" />'
-			3. Config-file platforms/android/src/io/cordova/hellocordova/MainActivity.java
-			3.1 Override public void onActivityResult and call super class "super.onActivityResult(requestCode, resultCode, data);"
 		-->
-		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+		<framework src="src/android/build.gradle" custom="true" type="gradleReference" /> <!-- 1.1 and 1.2 -->
 		<config-file target="res/xml/config.xml" parent="/*">
-			<preference name="android-minSdkVersion" value="19" />
+			<preference name="android-minSdkVersion" value="19" /> <!-- 2.1 -->
 			<feature name="Flic" >
 				<param name="android-package" value="com.jguix.cordova.Flic"/>
 			</feature>
