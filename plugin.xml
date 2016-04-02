@@ -26,6 +26,7 @@
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" /> <!-- 1.1 and 1.2 -->
 		<config-file target="res/xml/config.xml" parent="/*">
 			<preference name="android-minSdkVersion" value="19" /> <!-- 2.1 -->
+			<preference name="android-targetSdkVersion" value="19" /> <!-- 2.1 -->
 			<feature name="Flic" >
 				<param name="android-package" value="com.jguix.cordova.Flic"/>
 			</feature>
