@@ -68,8 +68,8 @@ Flic.prototype.grabButton = function(options) {
 }
 
 /**
- * Get last button event
- * Returns the last button pressed and the event
+ * Wait for button event
+ * Waits for a button event and returns the button pressed and the event
  * Input params:
  * - options: a properties object with 2 function callbacks
  *  - options.success: called on function success
@@ -77,10 +77,6 @@ Flic.prototype.grabButton = function(options) {
  */
 Flic.prototype.waitForButtonEvent = function(options) {
     exec(options.success, options.error, "Flic", "waitForButtonEvent", []);
-}
-
-Flic.prototype.triggerButtonEvent = function(options) {
-    exec(options.success, options.error, "Flic", "triggerButtonEvent", []);
 }
 
 /**
@@ -141,26 +137,22 @@ Flic.prototype.triggerButtonEvent = function(options) {
 var flic = new Flic();
 
 // Recursive function for calling the queue event endlessly
-var callFlicEvent = function() {
-    flic.triggerButtonEvent({
-        success: function(event) {
-            console.log('Flic getButtonEvent succeeded');
-            console.log('Flic event: ' + JSON.stringify(event));
-            cordova.fireDocumentEvent("flicButtonPressed", event);
-            callFlicEvent();
-        },
-        error: function(message) {
-            console.log('Flic getButtonEvent failed: ' + message);
-            callFlicEvent();
-        }
-    });
+var triggerButtonEvent = function() {
+    exec(function(event) {
+		console.log('Flic getButtonEvent succeeded');
+		console.log('Flic event: ' + JSON.stringify(event));
+		cordova.fireDocumentEvent("flicButtonPressed", event);
+		triggerButtonEvent();
+	}, function(message) {
+		console.log('Flic getButtonEvent failed: ' + message);
+		triggerButtonEvent();
+	}, "Flic", "triggerButtonEvent", []);
 }
-
 
 // Setup of event queue
 channel.onCordovaReady.subscribe(function() {
-	callFlicEvent();
-	console.log("Call flicButtonEvent");
+	triggerButtonEvent();
+	console.log("Trigger flicButtonEvent");
 });
 
 module.exports = flic;
