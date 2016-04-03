@@ -11,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.InterruptedException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -33,10 +32,10 @@ public class Flic extends CordovaPlugin {
     private static final String ACTION_FORGET_BUTTON = "forgetButton";
     private static final String ACTION_ENABLE_BUTTON = "enableButton";
     private static final String ACTION_DISABLE_BUTTON = "disableButton";
-    private static final String ACTION_GET_LAST_BUTTON_EVENT = "getLastButtonEvent";
-    private static final String ACTION_GET_BUTTON_EVENT = "getButtonEvent";
+    private static final String ACTION_WAIT_FOR_BUTTON_EVENT = "waitForButtonEvent";
+    private static final String ACTION_TRIGGER_BUTTON_EVENT = "triggerButtonEvent";
     private FlicManager manager;
-    private CallbackContext callbackContext;
+    private CallbackContext grabButtonCallbackContext;
     private CallbackContext buttonEventCallbackContext;
     private FlicButton lastPressedButton = null;
     private String lastEvent = "none";
@@ -103,7 +102,7 @@ public class Flic extends CordovaPlugin {
             return true;
         } else if (ACTION_GRAB_BUTTON.equals(action)) {
             // Keeps track of invoking callback context for later use
-            this.callbackContext = callbackContext;
+            this.grabButtonCallbackContext = callbackContext;
             // Tells cordova to send the callback to this plugin
             this.cordova.setActivityResultCallback(this);
             // Initiate grab button
@@ -152,7 +151,7 @@ public class Flic extends CordovaPlugin {
             callbackContext.success();
 
             return true;
-        } else if (ACTION_GET_LAST_BUTTON_EVENT.equals(action)) {
+        } else if (ACTION_WAIT_FOR_BUTTON_EVENT.equals(action)) {
             JSONObject result = new JSONObject();
             JSONObject jsonButton;
             jsonButton = createJSONButton(lastPressedButton);
@@ -163,27 +162,10 @@ public class Flic extends CordovaPlugin {
             callbackContext.success(result);
 
             return true;
-
-        } else if (ACTION_GET_BUTTON_EVENT.equals(action)) {
+        } else if (ACTION_TRIGGER_BUTTON_EVENT.equals(action)) {
             // Keeps track of invoking callback context for later use
             this.buttonEventCallbackContext = callbackContext;
-            /*try {
-                // Set countdown lock to 1
-                waitSignal = new CountDownLatch(1);
-                // Wait for button event to happen
-                waitSignal.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            JSONObject result = new JSONObject();
-            JSONObject jsonButton;
-            jsonButton = createJSONButton(lastPressedButton);
-            result.put("button", jsonButton);
-            result.put("event", lastEvent);
-            lastPressedButton = null;
-            lastEvent = "none";
-            callbackContext.success(result);
-            */
+
             return true;
         } else {
             callbackContext.error("Flic." + action + " is not a supported function.");
@@ -283,7 +265,7 @@ public class Flic extends CordovaPlugin {
                         + ", status: " + jsonButton.get("status"));
                 // Register events for button
                 enableButton(button);
-                callbackContext.success(jsonButton);
+                grabButtonCallbackContext.success(jsonButton);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

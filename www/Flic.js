@@ -75,12 +75,12 @@ Flic.prototype.grabButton = function(options) {
  *  - options.success: called on function success
  *  - options.error: called on function error
  */
-Flic.prototype.getLastButtonEvent = function(options) {
-    exec(options.success, options.error, "Flic", "getLastButtonEvent", []);
+Flic.prototype.waitForButtonEvent = function(options) {
+    exec(options.success, options.error, "Flic", "waitForButtonEvent", []);
 }
 
-Flic.prototype.getButtonEvent = function(options) {
-    exec(options.success, options.error, "Flic", "getButtonEvent", []);
+Flic.prototype.triggerButtonEvent = function(options) {
+    exec(options.success, options.error, "Flic", "triggerButtonEvent", []);
 }
 
 /**
@@ -142,7 +142,7 @@ var flic = new Flic();
 
 // Recursive function for calling the queue event endlessly
 var callFlicEvent = function() {
-    flic.getButtonEvent({
+    flic.triggerButtonEvent({
         success: function(event) {
             console.log('Flic getButtonEvent succeeded');
             console.log('Flic event: ' + JSON.stringify(event));
