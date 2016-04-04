@@ -36,7 +36,8 @@ public class Flic extends CordovaPlugin {
     private static final String ACTION_TRIGGER_BUTTON_EVENT = "triggerButtonEvent";
     private FlicManager manager;
     private CallbackContext grabButtonCallbackContext;
-    private CallbackContext buttonEventCallbackContext;
+    private CallbackContext waitForButtonEventCallbackContext;
+    private CallbackContext triggerButtonEventCallbackContext;
     private FlicButton lastPressedButton = null;
     private String lastEvent = "none";
     private static CountDownLatch waitSignal;
@@ -152,19 +153,13 @@ public class Flic extends CordovaPlugin {
 
             return true;
         } else if (ACTION_WAIT_FOR_BUTTON_EVENT.equals(action)) {
-            JSONObject result = new JSONObject();
-            JSONObject jsonButton;
-            jsonButton = createJSONButton(lastPressedButton);
-            result.put("button", jsonButton);
-            result.put("event", lastEvent);
-            lastPressedButton = null;
-            lastEvent = "none";
-            callbackContext.success(result);
+            // Keeps track of invoking callback context for later use
+            this.waitForButtonEventCallbackContext = callbackContext;
 
             return true;
         } else if (ACTION_TRIGGER_BUTTON_EVENT.equals(action)) {
             // Keeps track of invoking callback context for later use
-            this.buttonEventCallbackContext = callbackContext;
+            this.triggerButtonEventCallbackContext = callbackContext;
 
             return true;
         } else {
@@ -235,9 +230,13 @@ public class Flic extends CordovaPlugin {
                 jsonButton = createJSONButton(lastPressedButton);
                 result.put("button", jsonButton);
                 result.put("event", event);
-                if (buttonEventCallbackContext != null) {
-                    buttonEventCallbackContext.success(result);
-                    buttonEventCallbackContext = null;
+                if (waitForButtonEventCallbackContext != null) {
+                    waitForButtonEventCallbackContext.success(result);
+                    waitForButtonEventCallbackContext = null;
+                }
+                if (triggerButtonEventCallbackContext != null) {
+                    triggerButtonEventCallbackContext.success(result);
+                    triggerButtonEventCallbackContext = null;
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
