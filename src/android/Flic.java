@@ -78,6 +78,13 @@ public class Flic extends CordovaPlugin {
                     Log.d(LOG_TAG, "Ready to use manager");
                     Flic.this.manager = manager;
 
+                    // Auto-enable buttons grabbed in a previous run of the activity
+                    List<FlicButton> buttons = manager.getKnownButtons();
+                    for (FlicButton button : buttons) {
+                        // Register events for button
+                        enableButton(button);
+                    }
+
                     // Call callback function
                     callbackContext.success("Done initializing Flic");
                 }
@@ -94,8 +101,6 @@ public class Flic extends CordovaPlugin {
                 Log.d(LOG_TAG, "Found an existing button: " + jsonButton.get("buttonId")
                         + ", color: " + jsonButton.get("color")
                         + ", status: " + jsonButton.get("status"));
-                // Register events for button
-                enableButton(button);
             }
             // Call callback function
             callbackContext.success(jsonButtons);

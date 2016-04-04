@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-flic"
-	version="0.3.5">
+	version="0.3.7">
 	<name>Flic</name>
 	<description>A Cordova plugin providing access to the Flic SDK</description>
 	<license>Apache 2.0</license>
@@ -14,19 +14,12 @@
 		<clobbers target="Flic" />
 	</js-module>
 
-	<!--config-file target="config.xml" parent="/*">
-		<preference name="android-minSdkVersion" value="19" />
-		<preference name="android-targetSdkVersion" value="19" />
-	</config-file-->
-
 	<!-- android -->
 	<platform name="android">
 		<!-- tasks 
 			1. Config-file platforms/android/build.gradle
 			1.1 Append 'maven { url "https://jitpack.io" }' to root repositories
 			1.2 Append "compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'" to root dependencies
-			2. Config-file platforms/android/AndroidManifest.xml
-			2.1 Set '<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="23" />'
 		-->
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" /> <!-- 1.1 and 1.2 -->
 		<config-file target="res/xml/config.xml" parent="/*">
