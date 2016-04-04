@@ -38,9 +38,7 @@ public class Flic extends CordovaPlugin {
     private CallbackContext grabButtonCallbackContext;
     private CallbackContext waitForButtonEventCallbackContext;
     private CallbackContext triggerButtonEventCallbackContext;
-    private FlicButton lastPressedButton = null;
-    private String lastEvent = "none";
-    private static CountDownLatch waitSignal;
+    private enum BUTTON_STATUS {BUTTON_DISCONNECTED, BUTTON_CONNECTION_STARTED, BUTTON_CONNECTION_COMPLETED};
 
     /**
      * Constructor.
@@ -96,6 +94,8 @@ public class Flic extends CordovaPlugin {
                 Log.d(LOG_TAG, "Found an existing button: " + jsonButton.get("buttonId")
                         + ", color: " + jsonButton.get("color")
                         + ", status: " + jsonButton.get("status"));
+                // Register events for button
+                enableButton(button);
             }
             // Call callback function
             callbackContext.success(jsonButtons);
@@ -142,11 +142,8 @@ public class Flic extends CordovaPlugin {
             final String buttonId = options.getString("buttonId");
             FlicButton button = manager.getButtonByDeviceId(buttonId);
 
-            // Unregister button from any events
-            button.removeAllFlicButtonCallbacks();
-
-            // Set inactive mode
-            button.setActiveMode(false);
+            // Disable button
+            disableButton(button);
 
             // Call callback function
             callbackContext.success();
@@ -169,7 +166,7 @@ public class Flic extends CordovaPlugin {
     }
 
     private void enableButton(FlicButton button) {
-        // Unregister previous callbacks
+        // Unregister button from any events
         button.removeAllFlicButtonCallbacks();
 
         // Register button for click, double click and hold events
@@ -180,34 +177,47 @@ public class Flic extends CordovaPlugin {
         button.setActiveMode(true);
     }
 
-    private JSONObject createJSONButton(FlicButton button) throws JSONException {
-        String buttonId, color, status = null;
+    private void disableButton(FlicButton button) {
+        // Unregister button from any events
+        button.removeAllFlicButtonCallbacks();
+
+        // Set inactive mode
+        button.setActiveMode(false);
+    }
+
+    private JSONObject createJSONButton(FlicButton button) {
+        String buttonId = null, color = null, status = null;
         JSONObject jsonButton = new JSONObject();
-        if (button != null) {
-            buttonId = button.getButtonId();
-            color = button.getColor();
-            switch (button.getConnectionStatus()) {
-                case FlicButton.BUTTON_DISCONNECTED:
-                    status = "disconnected";
-                    break;
-                case FlicButton.BUTTON_CONNECTION_STARTED:
-                    status = "connection started";
-                    break;
-                case FlicButton.BUTTON_CONNECTION_COMPLETED:
-                    status = "connection completed";
-                    break;
+
+        try {
+            if (button != null) {
+                buttonId = button.getButtonId();
+                color = button.getColor();
+                status = BUTTON_STATUS.values()[button.getConnectionStatus()].name();
             }
             jsonButton.put("buttonId", buttonId);
             jsonButton.put("color", color);
             jsonButton.put("status", status);
-        } else {
-            jsonButton.put("buttonId", "");
-            jsonButton.put("color", "");
-            jsonButton.put("status", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         return jsonButton;
+    }
 
+    private JSONObject createJSONButtonEvent(FlicButton button, String event) {
+        JSONObject jsonButtonEvent = new JSONObject();
+
+        try {
+            JSONObject jsonButton;
+            jsonButton = createJSONButton(button);
+            jsonButtonEvent.put("button", jsonButton);
+            jsonButtonEvent.put("event", event);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonButtonEvent;
     }
 
     private FlicButtonCallback buttonCallback = new FlicButtonCallback() {
@@ -221,33 +231,18 @@ public class Flic extends CordovaPlugin {
                 boolean isHold) {
             String event = isSingleClick ? "singleClick" : (isDoubleClick ? "doubleClick" : "hold");
             Log.d(LOG_TAG, "Received event: " + event);
-            lastPressedButton = button;
-            lastEvent = event;
 
-            try {
-                JSONObject result = new JSONObject();
-                JSONObject jsonButton;
-                jsonButton = createJSONButton(lastPressedButton);
-                result.put("button", jsonButton);
-                result.put("event", event);
-                if (waitForButtonEventCallbackContext != null) {
-                    waitForButtonEventCallbackContext.success(result);
-                    waitForButtonEventCallbackContext = null;
-                }
-                if (triggerButtonEventCallbackContext != null) {
-                    triggerButtonEventCallbackContext.success(result);
-                    triggerButtonEventCallbackContext = null;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            JSONObject jsonButtonEvent = createJSONButtonEvent(button, event);
+            // Reports to waitForButtonEvent callback
+            if (waitForButtonEventCallbackContext != null) {
+                waitForButtonEventCallbackContext.success(jsonButtonEvent);
+                waitForButtonEventCallbackContext = null;
             }
-
-            // Release lock so waiting thread can continue
-            //waitSignal.countDown();
-            /*
-             * // Send pause event to JavaScript
-             * this.mainView.loadUrl("javascript:try{cordova.fireDocumentEvent('pause');}catch(e){console.log('exception firing pause event from native');};");
-             */
+            // Reports to triggerButtonEvent callback
+            if (triggerButtonEventCallbackContext != null) {
+                triggerButtonEventCallbackContext.success(jsonButtonEvent);
+                triggerButtonEventCallbackContext = null;
+            }
         }
 
     };
@@ -255,19 +250,15 @@ public class Flic extends CordovaPlugin {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         FlicButton button = manager.completeGrabButton(requestCode, resultCode, data);
-        if (button != null) {
 
-            try {
+        if (button != null) {
                 JSONObject jsonButton = createJSONButton(button);
-                Log.d(LOG_TAG, "Got a button: " + jsonButton.get("buttonId")
-                        + ", color: " + jsonButton.get("color")
-                        + ", status: " + jsonButton.get("status"));
+                Log.d(LOG_TAG, "Got a button: " + button.getButtonId()
+                        + ", color: " + button.getColor()
+                        + ", status: " + BUTTON_STATUS.values()[button.getConnectionStatus()].name());
                 // Register events for button
                 enableButton(button);
                 grabButtonCallbackContext.success(jsonButton);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
         }
     }
