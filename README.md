@@ -66,7 +66,7 @@ The following functions are available:
         }
     });
 
-    // Subscription to any button events
+    // Subscription to button events
     document.addEventListener('flicButtonPressed', function (result) {
         console.log(result.button.color + " button received " + result.event + " event");
     }, false);
