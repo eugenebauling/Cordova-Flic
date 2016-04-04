@@ -2,7 +2,7 @@
 A Cordova plugin providing access to the Flic SDK
 
 ## Installation
-    $ cordova plugin add https://github.com/jguix/Cordova-Flic
+    $ cordova plugin add cordova-plugin-flic
 
 Set android:minSdkVersion="19" or higher in AndroidManifest.xml
 
