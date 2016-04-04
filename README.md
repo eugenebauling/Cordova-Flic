@@ -1,14 +1,14 @@
 # Cordova-Flic
 A Cordova plugin providing access to the Flic SDK
 
-# Installation
+## Installation
     $ cordova plugin add https://github.com/jguix/Cordova-Flic
 
 Set android:minSdkVersion="19" or higher in AndroidManifest.xml
 
     $ cordova build android
 
-# Plugin API
+## Plugin API
 It has been currently stripped to the minimum needed from a Javascript app.
 
 The following functions are available:
@@ -33,7 +33,7 @@ The following functions are available:
     * options.success: called on function success
     * options.error: called on function error
 
-# Sample usage code
+## Sample usage code
     // Init flic
     Flic.init(appId, appSecret, appName, {
             success: function(result) {
@@ -72,7 +72,7 @@ The following functions are available:
         console.log(result.button.color + " button received " + result.event + " event");
     }, false);
 
-# Roadmap
+## Roadmap
 Next steps:
 
 * Implement function forgetButton(buttonId). Forget a button, which will never be associated to the app until it is grabbed again.
@@ -81,4 +81,3 @@ Next steps:
 * Implement function getButton(buttonId). Get a button by its device ID.
 * Implement function setActiveMode(buttonId). Set button active mode.
 * Implement function for more refined event subscription (onButtonClickOrHold, onButtonSingleOrDoubleClick, onButtonSingleOrDoubleClickOrHold, onButtonUpOrDown, onConnectionCompleted, onConnectionFailed, onConnectionStarted, onDisconnect, onReadRemoteRSSI)
-
