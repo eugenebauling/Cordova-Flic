@@ -39,24 +39,24 @@ The following functions are available:
         success: function(result) {
             console.log('Flic init succeeded');
 
+            // Get known buttons
             Flic.getKnownButtons({
                 success: function(buttons) {
                     console.log('Flic getKnownButtons succeeded');
                     console.log('Flic known buttons: ' + JSON.stringify(buttons));
-
-                    // Wait for next button event (one time subscription)
-                    Flic.waitForButtonEvent({
-                        success: function(result) {
-                            console.log("Waited for " + result.button.color + " button, event " + result.event);
-                        },
-                        error: function(message) {
-                            console.log("Error waiting for button event: " + message);
-                        }
-                    });
-
                 },
                 error: function(message) {
                     console.log('Flic getKnownButtons failed: ' + message);
+                }
+            });
+
+            // Wait for next button event (one time subscription)
+            Flic.waitForButtonEvent({
+                success: function(result) {
+                    console.log("Waited for " + result.button.color + " button, event " + result.event);
+                },
+                error: function(message) {
+                    console.log("Error waiting for button event: " + message);
                 }
             });
 
