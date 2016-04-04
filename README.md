@@ -36,36 +36,35 @@ The following functions are available:
 ## Sample usage code
     // Init flic
     Flic.init(appId, appSecret, appName, {
-            success: function(result) {
-                console.log('Flic init succeeded');
+        success: function(result) {
+            console.log('Flic init succeeded');
 
-                Flic.getKnownButtons({
-                    success: function(buttons) {
-                        console.log('Flic getKnownButtons succeeded');
-                        console.log('Flic known buttons: ' + JSON.stringify(buttons));
+            Flic.getKnownButtons({
+                success: function(buttons) {
+                    console.log('Flic getKnownButtons succeeded');
+                    console.log('Flic known buttons: ' + JSON.stringify(buttons));
 
-                        // Wait for next button event (one time subscription)
-                        Flic.waitForButtonEvent({
-                            success: function(result) {
-                                console.log("Waited for " + result.button.color + " button, event " + result.event);
-                            },
-                            error: function(message) {
-                                console.log("Error waiting for button event: " + message);
-                            }
-                        });
+                    // Wait for next button event (one time subscription)
+                    Flic.waitForButtonEvent({
+                        success: function(result) {
+                            console.log("Waited for " + result.button.color + " button, event " + result.event);
+                        },
+                        error: function(message) {
+                            console.log("Error waiting for button event: " + message);
+                        }
+                    });
 
-                    },
-                    error: function(message) {
-                        console.log('Flic getKnownButtons failed: ' + message);
-                    }
-                });
+                },
+                error: function(message) {
+                    console.log('Flic getKnownButtons failed: ' + message);
+                }
+            });
 
-            },
-            error: function(message) {
-                console.log('Flic init failed: ' + message);
-            }
-         });
-
+        },
+        error: function(message) {
+            console.log('Flic init failed: ' + message);
+        }
+    });
 
     // Subscription to any button events
     document.addEventListener('flicButtonPressed', function (result) {
