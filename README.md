@@ -71,6 +71,12 @@ The following functions are available:
         console.log(result.button.color + " button received " + result.event + " event");
     }, false);
 
+## Sample app
+
+Copy the files from the example folder to your project's platforms/android/assets/wwww folder.
+
+![Sample app screenshot](/example_screenshot.jpg)
+
 ## Roadmap
 Next steps:
 
