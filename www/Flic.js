@@ -139,12 +139,12 @@ var flic = new Flic();
 // Recursive function for calling the queue event endlessly
 var triggerButtonEvent = function() {
     exec(function(event) {
-		console.log('Flic getButtonEvent succeeded');
+		console.log('Flic triggerButtonEvent succeeded');
 		console.log('Flic event: ' + JSON.stringify(event));
 		cordova.fireDocumentEvent("flicButtonPressed", event);
 		triggerButtonEvent();
 	}, function(message) {
-		console.log('Flic getButtonEvent failed: ' + message);
+		console.log('Flic triggerButtonEvent failed: ' + message);
 		triggerButtonEvent();
 	}, "Flic", "triggerButtonEvent", []);
 }
