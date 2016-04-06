@@ -8,7 +8,7 @@
  * https://github.com/apache/cordova-plugin-network-information/blob/master/www/network.js
  * https://github.com/apache/cordova-plugin-network-information/blob/master/src/android/NetworkManager.java
  */
-cordova.define("cordova-plugin-flic.Flic", function(require, exports, module) {
+
 var exec = require('cordova/exec'),
     cordova = require('cordova'),
     channel = require('cordova/channel');
@@ -156,5 +156,3 @@ channel.onCordovaReady.subscribe(function() {
 });
 
 module.exports = flic;
-
-});
