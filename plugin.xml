@@ -9,7 +9,7 @@
 	<keywords>cordova,flic,smart,button,sdk</keywords>
 	<repo></repo>
 	<issue></issue>
-
+	
 	<js-module src="www/Flic.js" name="Flic">
 		<clobbers target="Flic" />
 	</js-module>
@@ -29,4 +29,40 @@
 		</config-file>
 		<source-file src="src/android/Flic.java" target-dir="src/com/jguix/cordova" />
 	</platform>
+	 <platform name="ios">
+		<preference name="URL_SCHEME" />
+		<config-file target="*-Info.plist" parent="UIBackgroundModes">
+			<array>
+				<string>bluetooth-central</string>
+			</array>
+		</config-file>
+		<config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
+			<array>
+				<string>flic20</string>
+			</array>
+		</config-file>
+		<config-file target="*-Info.plist" parent="CFBundleURLTypes">
+			<array>
+				<dict>
+					<key>CFBundleURLSchemes</key>
+					<array>
+						<string>$URL_SCHEME</string>
+					</array>
+				</dict>
+			</array>
+		</config-file>
+		<config-file target="config.xml" parent="/*">
+			<feature name="Flic">
+				<param name="ios-package" value="Flic"/>
+				<param name="onload" value="true" />
+			</feature>
+		</config-file>
+		<framework src="src/ios/fliclib.framework" custom="true" />
+			
+		<source-file src="src/ios/Flic.m" />
+		<header-file src="src/ios/Flic.h" />
+	
+		<!--<hook type="after_compile" src="hook/hook-embed-framework.js" />	-->
+
+	 </platform> 
 </plugin>

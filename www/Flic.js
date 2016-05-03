@@ -134,6 +134,18 @@ Flic.prototype.waitForButtonEvent = function(options) {
 	]);
 }*/
 
+/**
+ * On flic button click event
+ * Waits for a button click event and returns the button pressed and the event
+ * Input params:
+ * - options: a properties object with 2 function callbacks
+ *  - options.success: called on function success
+ *  - options.error: called on function error
+ */
+Flic.prototype.onButtonClick = function(options) {
+    exec(options.success, options.error, "Flic", "onButtonClick", []);
+}
+
 var flic = new Flic();
 
 // Recursive function for calling the queue event endlessly
