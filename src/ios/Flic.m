@@ -16,20 +16,15 @@
 
 static NSString * const pluginNotInitializedMessage = @"flic is not initialized";
 static NSString * const TAG = @"[TAF Flic] ";
+static NSString * const BUTTON_EVENT_SINGLECLICK = @"singleClick";
+static NSString * const BUTTON_EVENT_DOUBLECLICK = @"doubleClick";
+static NSString * const BUTTON_EVENT_HOLD = @"hold";
 @synthesize onButtonClickCallbackId;
 
 - (void)pluginInitialize
 {
     [self log:@"pluginInitialize"];
-    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openApplicationURL:) name:UIApplicationLaunchOptionsURLKey object:nil];
-}
-
-- (BOOL)openApplicationURL:(NSNotification *)notification
-{
-    [self log:@"openApplicationURL"];
-    BOOL wasHandled = NO;
-    //wasHandled = [[SCLFlicManager sharedManager] handleOpenURL:url];
-    return wasHandled;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleOpenURL:) name:@"flicApp" object:nil];
 }
 
 - (void) init:(CDVInvokedUrlCommand*)command
@@ -103,41 +98,59 @@ static NSString * const TAG = @"[TAF Flic] ";
 {
     if(error)
     {
-        [self log:@"Could not grab"];
+        NSLog(@"Could not grab: %@", error);
     }
     
     [self log:@"Grabbed button"];
-    
-    // un-comment the following line if you need lower click latency for your application
-    // this will consume more battery so don't over use it
-    // button.lowLatency = YES;
-    //[self updateUI];
 }
 
 // button was unregistered
 - (void)flicManager:(SCLFlicManager *)manager didForgetButton:(NSUUID *)buttonIdentifier error:(NSError *)error;
 {
     [self log:@"Unregistered button"];
-    //[self updateUI];
 }
 
 // button was clicked
-- (void)flicButton:(SCLFlicButton *)button didReceiveButtonDown:(BOOL)queued age:(NSInteger)age;
-{
-    [self log:@"didReceiveButtonDown"];
-    
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:queued];
-    [result setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
-}
-
-// button was clicked
-- (void)flicButton:(SCLFlicButton *)button didReceiveButtonClick:(BOOL)queued age:(NSInteger)age;
+- (void)flicButton:(SCLFlicButton *)button didReceiveButtonClick:(BOOL)queued age:(NSInteger)age
 {
     [self log:@"didReceiveButtonClick"];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:queued];
+    
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_SINGLECLICK button:button]];
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
+}
+
+// button was double clicked
+- (void)flicButton:(SCLFlicButton *)button didReceiveButtonDoubleClick:(BOOL)queued age:(NSInteger)age
+{
+    [self log:@"didReceiveButtonDoubleClick"];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_DOUBLECLICK button:button]];
+    [result setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
+}
+
+// button was hold
+- (void)flicButton:(SCLFlicButton *)button didReceiveButtonHold:(BOOL)queued age:(NSInteger)age
+{
+    [self log:@"didReceiveButtonHold"];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_HOLD button:button]];
+    [result setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
+}
+
+- (NSDictionary*)getButtonEventObject:(NSString *)event button:(SCLFlicButton *)button
+{
+    // not yet implemented
+    NSDictionary *buttonResult = @{
+                                   @"buttonId": @"test",
+                                   @"color": button.color.description
+                                   };
+    NSDictionary *result = @{
+                   @"event": event,
+                   @"button": buttonResult
+                };
+    
+    return result;
 }
 
 - (NSMutableArray*)knownButtons
@@ -153,17 +166,22 @@ static NSString * const TAG = @"[TAF Flic] ";
         NSLog(@"buttonId: %@", button.buttonIdentifier);
         
         [b setObject:@"test" forKey:@"buttonId"];
-        [b setObject:@"yellow" forKey:@"color"];
+        [b setObject:[button.color description] forKey:@"color"];
         [buttons addObject:b];
     }
     
     return buttons;
 }
 
-- (BOOL)handleOpenURL:(NSURL *)url
+- (void)handleOpenURL:(NSNotification*)notification
 {
-    NSLog(@"handleOpenURL %@", url);
-    return YES;
+    NSURL* url = [notification object];
+    
+    if ([url isKindOfClass:[NSURL class]]) {
+        [[SCLFlicManager sharedManager] handleOpenURL:url];
+        
+        NSLog(@"handleOpenURL %@", url);
+    }
 }
 
 -(void)log:(NSString *)text

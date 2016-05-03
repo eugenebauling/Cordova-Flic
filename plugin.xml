@@ -60,6 +60,8 @@
         	
 		<source-file src="src/ios/Flic.m" />
         <header-file src="src/ios/Flic.h" />
+	
+		<!--<hook type="after_compile" src="hook/hook-embed-framework.js" />	-->
 
      </platform> 
 </plugin>
