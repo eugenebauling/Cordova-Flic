@@ -1,20 +1,19 @@
 /**
  * A Cordova plugin providing access to the Flic SDK
- * 
- * This is the first working version, using an ugly pull mode (asking for last pushed button)
- * 
- * Please check the following links to evolve the plugin to an event mode using cordova.fireDocumentEvent():
- * https://github.com/apache/cordova-plugin-network-information
- * https://github.com/apache/cordova-plugin-network-information/blob/master/www/network.js
- * https://github.com/apache/cordova-plugin-network-information/blob/master/src/android/NetworkManager.java
+ *
+ * The plugin will fire the following document events from flic buttons:
+ *
+ * flicButtonClick
+ * flicButtonDblClick
+ * flicButtonHold
+ *
  */
 
-var exec = require('cordova/exec'),
-    cordova = require('cordova'),
-    channel = require('cordova/channel');
+var exec = cordova.require('cordova/exec'),
+    channel = cordova.require('cordova/channel');
 
-function Flic() { 
-	console.log("Flic.js: is created");
+function Flic() {
+    console.log('Flic.js: is created');
 }
 
 /**
@@ -28,16 +27,16 @@ function Flic() {
  *  - options.error: called on function error
  */
 Flic.prototype.init = function(appId, appSecret, appName, options) {
-	console.log("Flic.js: init");
+    console.log('Flic.js: init');
 
-	exec(options.success, options.error, "Flic", "init", [
-		{
-			appId: appId,
-			appSecret: appSecret,
-			appName: appName
-		}
-	]);
-}
+    exec(options.success, options.error, 'Flic', 'init', [
+        {
+            appId: appId,
+            appSecret: appSecret,
+            appName: appName
+        }
+    ]);
+};
 
 /**
  * Get known buttons
@@ -48,10 +47,10 @@ Flic.prototype.init = function(appId, appSecret, appName, options) {
  *  - options.error: called on function error
  */
 Flic.prototype.getKnownButtons = function(options) {
-	console.log("Flic.js: getKnownButtons");
+    console.log('Flic.js: getKnownButtons');
 
-	exec(options.success, options.error, "Flic", "getKnownButtons", []);
-}
+    exec(options.success, options.error, 'Flic', 'getKnownButtons', []);
+};
 
 /**
  * Grab button
@@ -62,22 +61,10 @@ Flic.prototype.getKnownButtons = function(options) {
  *  - options.error: called on function error
  */
 Flic.prototype.grabButton = function(options) {
-	console.log("Flic.js: grabButton");
+    console.log('Flic.js: grabButton');
 
-	exec(options.success, options.error, "Flic", "grabButton", []);
-}
-
-/**
- * Wait for button event
- * Waits for a button event and returns the button pressed and the event
- * Input params:
- * - options: a properties object with 2 function callbacks
- *  - options.success: called on function success
- *  - options.error: called on function error
- */
-Flic.prototype.waitForButtonEvent = function(options) {
-    exec(options.success, options.error, "Flic", "waitForButtonEvent", []);
-}
+    exec(options.success, options.error, 'Flic', 'grabButton', []);
+};
 
 /**
  * Forget button
@@ -88,13 +75,13 @@ Flic.prototype.waitForButtonEvent = function(options) {
  *  - options.error: called on function error
  */
 /*Flic.prototype.forgetButton = function(buttonId, options) {
-	console.log("Flic.js: forgetButton");
+    console.log('Flic.js: forgetButton');
 
-	exec(options.success, options.error, "Flic", "forgetButton", [
-		{
-			buttonId: buttonId
-		}
-	]);
+    exec(options.success, options.error, 'Flic', 'forgetButton', [
+        {
+            buttonId: buttonId
+        }
+    ]);
 }*/
 
 /**
@@ -106,13 +93,13 @@ Flic.prototype.waitForButtonEvent = function(options) {
  *  - options.error: called on function error
  */
 /*Flic.prototype.enableButton = function(buttonId, options) {
-	console.log("Flic.js: enableButton");
+    console.log('Flic.js: enableButton');
 
-	exec(options.success, options.error, "Flic", "enableButton", [
-		{
-			buttonId: buttonId
-		}
-	]);
+    exec(options.success, options.error, 'Flic', 'enableButton', [
+        {
+            buttonId: buttonId
+        }
+    ]);
 }*/
 
 /**
@@ -125,34 +112,38 @@ Flic.prototype.waitForButtonEvent = function(options) {
  *  - options.error: called on function error
  */
 /*Flic.prototype.disableButton = function(buttonId, options) {
-	console.log("Flic.js: disableButton");
+    console.log('Flic.js: disableButton');
 
-	exec(options.success, options.error, "Flic", "disableButton", [
-		{
-			buttonId: buttonId
-		}
-	]);
+    exec(options.success, options.error, 'Flic', 'disableButton', [
+        {
+            buttonId: buttonId
+        }
+    ]);
 }*/
 
-var flic = new Flic();
-
-// Recursive function for calling the queue event endlessly
-var triggerButtonEvent = function() {
-    exec(function(event) {
-		console.log('Flic triggerButtonEvent succeeded');
-		console.log('Flic event: ' + JSON.stringify(event));
-		cordova.fireDocumentEvent("flicButtonPressed", event);
-		triggerButtonEvent();
-	}, function(message) {
-		console.log('Flic triggerButtonEvent failed: ' + message);
-		triggerButtonEvent();
-	}, "Flic", "triggerButtonEvent", []);
+function onMessageFromNative(msg) {
+    console.log('MESSAGE FROM NATIVE: ' + msg.event);
+    console.log(msg.button);
+        switch (msg.event.toLowerCase()) {
+        case 'singleclick':
+            cordova.fireDocumentEvent('flicButtonClick', msg.button);
+            break;
+        case 'doubleclick':
+            cordova.fireDocumentEvent('flicButtonDblClick', msg.button);
+            break;
+        case 'hold':
+            cordova.fireDocumentEvent('flicButtonHold', msg.button);
+            break;
+        default:
+            console.error('Unknown Flic Event: ' + msg.event);
+    }
 }
 
-// Setup of event queue
-channel.onCordovaReady.subscribe(function() {
-	triggerButtonEvent();
-	console.log("Trigger flicButtonEvent");
-});
+if (cordova.platformId === 'android') {
+    channel.onCordovaReady.subscribe(function() {
+        exec(onMessageFromNative, undefined, 'Flic', 'messageChannel', []);
+    });
+}
 
+var flic = new Flic();
 module.exports = flic;

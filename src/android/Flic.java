@@ -39,15 +39,12 @@ public class Flic extends CordovaPlugin {
     private static final String ACTION_FORGET_BUTTON = "forgetButton";
     private static final String ACTION_ENABLE_BUTTON = "enableButton";
     private static final String ACTION_DISABLE_BUTTON = "disableButton";
-    private static final String ACTION_WAIT_FOR_BUTTON_EVENT = "waitForButtonEvent";
     private static final String ACTION_TRIGGER_BUTTON_EVENT = "triggerButtonEvent";
     private static final String ACTION_MESSAGE_CHANNEL = "messageChannel";
     private static final String FLICLIB_EVENT = "io.flic.FLICLIB_EVENT";
     private FlicManager manager;
     private CallbackContext messageChannel;
     private CallbackContext grabButtonCallbackContext;
-    private CallbackContext waitForButtonEventCallbackContext;
-    private CallbackContext triggerButtonEventCallbackContext;
     private enum BUTTON_STATUS {BUTTON_DISCONNECTED, BUTTON_CONNECTION_STARTED, BUTTON_CONNECTION_COMPLETED};
 
     private String _appId;
