@@ -28,10 +28,6 @@ The following functions are available:
   * options: a properties object with 2 function callbacks
     * options.success: called on function success
     * options.error: called on function error
-* Flic.waitForButtonEvent(options). Get last pressed button event. Returns the button and the event
-  * options: a properties object with 2 function callbacks
-    * options.success: called on function success
-    * options.error: called on function error
 
 ## Sample usage code
     // Init flic
@@ -50,16 +46,6 @@ The following functions are available:
                 }
             });
 
-            // Wait for next button event (one time subscription)
-            Flic.waitForButtonEvent({
-                success: function(result) {
-                    console.log("Waited for " + result.button.color + " button, event " + result.event);
-                },
-                error: function(message) {
-                    console.log("Error waiting for button event: " + message);
-                }
-            });
-
         },
         error: function(message) {
             console.log('Flic init failed: ' + message);
@@ -67,10 +53,16 @@ The following functions are available:
     });
 
     // Subscription to button events
-    document.addEventListener('flicButtonPressed', function (result) {
-        console.log(result.button.color + " button received " + result.event + " event");
-    }, false);
+    document.addEventListener('flicButtonClick', this.onFlicButtonPressed, false);
+    document.addEventListener('flicButtonDblClick', this.onFlicButtonPressed, false);
+    document.addEventListener('flicButtonHold', this.onFlicButtonPressed, false);
 
+    function onFlicButtonPressed(event) {
+        console.log(event.type); //flicButtonClick
+        console.log(event.buttonId); //70:d4:db:69:2f:4e
+        console.log(event.color); //green
+        console.log(event.status); //BUTTON_CONNECTION_COMPLETED
+    }
 ## Sample app
 
 Copy the files from the example folder to your project's platforms/android/assets/wwww folder.
