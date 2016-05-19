@@ -57,6 +57,16 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 	[self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
+- (void) flicManagerDidRestoreState:(SCLFlicManager * _Nonnull) manager{
+    [self log:@"flicManagerDidRestoreState"];
+    
+    // setup trigger behavior for already grabbed buttons
+    NSArray * kButtons = [[SCLFlicManager sharedManager].knownButtons allValues];
+    for (SCLFlicButton *button in kButtons) {
+        button.triggerBehavior = SCLFlicButtonTriggerBehaviorClickAndDoubleClickAndHold;
+    }
+}
+
 - (void) grabButton:(CDVInvokedUrlCommand*)command
 {
     [self log:@"grabButton"];
@@ -101,6 +111,10 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
         NSLog(@"Could not grab: %@", error);
     }
     
+    if(button != nil){
+        button.triggerBehavior = SCLFlicButtonTriggerBehaviorClickAndDoubleClickAndHold;
+    }
+    
     [self log:@"Grabbed button"];
 }
 
@@ -140,11 +154,7 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 
 - (NSDictionary*)getButtonEventObject:(NSString *)event button:(SCLFlicButton *)button
 {
-    // not yet implemented
-    NSDictionary *buttonResult = @{
-                                   @"buttonId": @"test",
-                                   @"color": button.color.description
-                                   };
+    NSDictionary *buttonResult = [self getButtonJsonObject:button];
     NSDictionary *result = @{
                    @"event": event,
                    @"button": buttonResult
@@ -155,22 +165,63 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 
 - (NSMutableArray*)knownButtons
 {
-    NSMutableArray *buttons = [[NSMutableArray alloc] init];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
     
     NSLog(@"get knownButtons");
     
     NSArray * kButtons = [[SCLFlicManager sharedManager].knownButtons allValues];
     for (SCLFlicButton *button in kButtons) {
-        NSMutableDictionary* b = [NSMutableDictionary dictionaryWithCapacity:2];
-        
-        NSLog(@"buttonId: %@", button.buttonIdentifier);
-        
-        [b setObject:@"test" forKey:@"buttonId"];
-        [b setObject:[button.color description] forKey:@"color"];
-        [buttons addObject:b];
+        NSDictionary* b = [self getButtonJsonObject:button];
+        [result addObject:b];
     }
     
-    return buttons;
+    return result;
+}
+
+- (NSDictionary*)getButtonJsonObject:(SCLFlicButton *)button
+{
+    //NSString *colorString1 = [CIColor colorWithCGColor:button.color.CGColor].stringRepresentation;
+    //NSLog(@"colorString1: %@", colorString1);
+    
+    //NSString *colorString = [self hexStringForColor:button.color];
+    //NSLog(@"colorString: %@", colorString);
+    
+    NSDictionary *result = @{
+        @"buttonId": [button.buttonIdentifier UUIDString],
+        @"name": button.userAssignedName,
+        @"color": @"white",
+        @"connectionState": [self connectionStateForButton:button]
+        };
+    
+    return result;
+}
+
+- (NSString *)connectionStateForButton:(SCLFlicButton *)button {
+    if(button == nil)
+    {
+        return @"";
+    }
+    
+    if (button.connectionState == SCLFlicButtonConnectionStateConnected) {
+        return @"Connected";
+    }else if (button.connectionState == SCLFlicButtonConnectionStateConnecting) {
+        return @"Connecting";
+    }else if (button.connectionState == SCLFlicButtonConnectionStateDisconnected) {
+        return @"Disconnected";
+    }else if (button.connectionState == SCLFlicButtonConnectionStateDisconnecting) {
+        return @"Disconnecting";
+    }
+    
+    return @"unknown";
+}
+
+- (NSString *)hexStringForColor:(UIColor *)color {
+    const CGFloat *components = CGColorGetComponents(color.CGColor);
+    CGFloat r = components[0];
+    CGFloat g = components[1];
+    CGFloat b = components[2];
+    NSString *hexString=[NSString stringWithFormat:@"%02X%02X%02X", (int)(r * 255), (int)(g * 255), (int)(b * 255)];
+    return hexString;
 }
 
 - (void)handleOpenURL:(NSNotification*)notification
