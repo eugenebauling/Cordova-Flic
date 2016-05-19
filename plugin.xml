@@ -23,6 +23,9 @@
 		-->
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" /> <!-- 1.1 and 1.2 -->
 		<config-file target="res/xml/config.xml" parent="/*">
+			<!-- The feature's name attribute should match what you specify as the JavaScript exec call's service parameter.
+				The value attribute should match the name of the plugin's Java class.
+			-->
 			<feature name="Flic" >
 				<param name="android-package" value="com.jguix.cordova.Flic"/>
 			</feature>
