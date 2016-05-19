@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-flic"
-	version="0.5.1">
+	version="0.5.2">
 	<name>Flic</name>
 	<description>A Cordova plugin providing access to the Flic SDK</description>
 	<license>Apache 2.0</license>
@@ -57,12 +57,11 @@
 				<param name="onload" value="true" />
 			</feature>
 		</config-file>
-		<framework src="src/ios/fliclib.framework" custom="true" />
+		<framework src="src/ios/fliclib.framework" custom="true" embed="true" />
 			
 		<source-file src="src/ios/Flic.m" />
 		<header-file src="src/ios/Flic.h" />
-	
-		<!--<hook type="after_compile" src="hook/hook-embed-framework.js" />	-->
-
+		
+		<hook type="after_platform_add" src="hook/addEmbedded.js" />
 	 </platform> 
 </plugin>
