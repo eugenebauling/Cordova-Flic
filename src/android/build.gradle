@@ -1,7 +1,14 @@
-repositories {
-	maven { url "https://jitpack.io" }
-}
+apply plugin: 'git-dependencies'
 
-dependencies {
-	compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.batcha.gradle.plugins:git-dependencies:0.2'
+        compile {
+            ext.git = 'git@github.com:50ButtonsEach/fliclib-android.git'
+        }
+        compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'
+    }
 }
