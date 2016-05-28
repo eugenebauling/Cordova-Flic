@@ -21,7 +21,9 @@
 			1.1 Append 'maven { url "https://jitpack.io" }' to root repositories
 			1.2 Append "compile 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'" to root dependencies
 		-->
-		<framework src="src/android/build.gradle" custom="true" type="gradleReference" /> <!-- 1.1 and 1.2 -->
+		<!--framework src="src/android/build.gradle" custom="true" type="gradleReference" /--> <!-- 1.1 and 1.2 -->
+		<framework src="src/android/cordovaFlic.gradle" custom="true" type="gradleReference" />
+        <resource-file src="libs/fliclib-release.aar" target="libs/fliclib-release.aar" />
 		<config-file target="res/xml/config.xml" parent="/*">
 			<!-- The feature's name attribute should match what you specify as the JavaScript exec call's service parameter.
 				The value attribute should match the name of the plugin's Java class.
