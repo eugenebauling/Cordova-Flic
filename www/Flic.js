@@ -121,6 +121,18 @@ Flic.prototype.grabButton = function(options) {
     ]);
 }*/
 
+/**
+ * On flic button click event
+ * Waits for a button click event and returns the button pressed and the event
+ * Input params:
+ * - options: a properties object with 2 function callbacks
+ *  - options.success: called on function success
+ *  - options.error: called on function error
+ */
+Flic.prototype.onButtonClick = function(options) {
+    exec(options.success, options.error, "Flic", "onButtonClick", []);
+}
+
 function onMessageFromNative(msg) {
     console.log('MESSAGE FROM NATIVE: ' + msg.event);
     console.log(msg.button);
@@ -139,9 +151,28 @@ function onMessageFromNative(msg) {
     }
 }
 
+// Recursive function for calling the queue event endlessly
+var triggerButtonEvent = function() {
+    exec(function(event) {
+		console.log('Flic triggerButtonEvent succeeded');
+		console.log('Flic event: ' + JSON.stringify(event));
+		cordova.fireDocumentEvent("flicButtonPressed", event);
+		triggerButtonEvent();
+	}, function(message) {
+		console.log('Flic triggerButtonEvent failed: ' + message);
+		triggerButtonEvent();
+	}, "Flic", "triggerButtonEvent", []);
+}
+
 if (cordova.platformId === 'android') {
     channel.onCordovaReady.subscribe(function() {
         exec(onMessageFromNative, undefined, 'Flic', 'messageChannel', []);
+    });
+} else {
+    // Setup of event queue
+    channel.onCordovaReady.subscribe(function() {
+        triggerButtonEvent();
+        console.log("Trigger flicButtonEvent");
     });
 }
 
