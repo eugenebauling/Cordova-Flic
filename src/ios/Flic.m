@@ -79,8 +79,8 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         return;
     }
-    
-	[[SCLFlicManager sharedManager] grabFlicFromFlicAppWithCallbackUrlScheme:@"winfleet-tracker"];
+    NSString *FlicUrlScheme = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"FlicUrlScheme"];
+	[[SCLFlicManager sharedManager] grabFlicFromFlicAppWithCallbackUrlScheme:FlicUrlScheme];
 	result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
 	[self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
