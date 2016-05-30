@@ -1,11 +1,12 @@
 {
   "name": "cordova-plugin-flic",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "description": "A Cordova plugin providing access to the Flic SDK",
   "cordova": {
     "id": "cordova-plugin-flic",
     "platforms": [
-      "android"
+      "android",
+      "ios"
     ]
   },
   "repository": {
@@ -19,7 +20,8 @@
     "button",
     "sdk",
     "ecosystem:cordova",
-    "cordova-android"
+    "cordova-android",
+    "cordova-ios"
   ],
   "author": "jguix",
   "license": "Apache 2.0"
