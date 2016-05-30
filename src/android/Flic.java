@@ -2,11 +2,15 @@ package com.jguix.cordova;
 
 import android.content.Intent;
 import android.util.Log;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.widget.Toast;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +23,9 @@ import io.flic.lib.FlicButtonCallback;
 import io.flic.lib.FlicButtonCallbackFlags;
 import io.flic.lib.FlicManager;
 import io.flic.lib.FlicManagerInitializedCallback;
+import io.flic.lib.FlicBroadcastReceiver;
+import io.flic.lib.FlicBroadcastReceiverFlags;
+
 
 /**
  * Flic SDK Plugin
@@ -32,19 +39,22 @@ public class Flic extends CordovaPlugin {
     private static final String ACTION_FORGET_BUTTON = "forgetButton";
     private static final String ACTION_ENABLE_BUTTON = "enableButton";
     private static final String ACTION_DISABLE_BUTTON = "disableButton";
-    private static final String ACTION_WAIT_FOR_BUTTON_EVENT = "waitForButtonEvent";
     private static final String ACTION_TRIGGER_BUTTON_EVENT = "triggerButtonEvent";
+    private static final String ACTION_MESSAGE_CHANNEL = "messageChannel";
+    private static final String FLICLIB_EVENT = "io.flic.FLICLIB_EVENT";
     private FlicManager manager;
+    private CallbackContext messageChannel;
     private CallbackContext grabButtonCallbackContext;
-    private CallbackContext waitForButtonEventCallbackContext;
-    private CallbackContext triggerButtonEventCallbackContext;
     private enum BUTTON_STATUS {BUTTON_DISCONNECTED, BUTTON_CONNECTION_STARTED, BUTTON_CONNECTION_COMPLETED};
+
+    private String _appId;
+    private String _appSecret;
+    private String _appName;
 
     /**
      * Constructor.
      */
-    public Flic() {
-    }
+    public Flic() { }
 
     /**
      * Sets the context of the Command. This can then be used to do things like
@@ -62,20 +72,19 @@ public class Flic extends CordovaPlugin {
     @Override
     public boolean execute(final String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         Log.v(LOG_TAG, "Flic action: " + action);
-        if (ACTION_INIT.equals(action)) {
-            // Get app credentials from arguments
-            final JSONObject options = args.getJSONObject(0);
-            final String appId = options.getString("appId");
-            final String appSecret = options.getString("appSecret");
-            final String appName = options.getString("appName");
 
-            // Set app credentials
-            FlicManager.setAppCredentials(appId, appSecret, appName);
+        if (ACTION_INIT.equals(action)) {
+            Log.d(LOG_TAG, "ACTION: Init");
+
+            InitAppCredentials(args);
+
+            InitBroadcastReceiver();
+
             // Get manager
             FlicManager.getInstance(this.cordova.getActivity().getApplicationContext(), new FlicManagerInitializedCallback() {
                 @Override
                 public void onInitialized(FlicManager manager) {
-                    Log.d(LOG_TAG, "Ready to use manager");
+                    Log.d(LOG_TAG, "FlicManager Ready");
                     Flic.this.manager = manager;
 
                     // Auto-enable buttons grabbed in a previous run of the activity
@@ -92,6 +101,7 @@ public class Flic extends CordovaPlugin {
 
             return true;
         } else if (ACTION_GET_KNOWN_BUTTONS.equals(action)) {
+            Log.d(LOG_TAG, "ACTION: Get Known Buttons");
             JSONArray jsonButtons = new JSONArray();
             // Restore buttons grabbed in a previous run of the activity
             List<FlicButton> buttons = manager.getKnownButtons();
@@ -99,8 +109,8 @@ public class Flic extends CordovaPlugin {
                 JSONObject jsonButton = createJSONButton(button);
                 jsonButtons.put(jsonButton);
                 Log.d(LOG_TAG, "Found an existing button: " + jsonButton.get("buttonId")
-                        + ", color: " + jsonButton.get("color")
-                        + ", status: " + jsonButton.get("status"));
+                      + ", color: " + jsonButton.get("color")
+                      + ", status: " + jsonButton.get("status"));
             }
             // Call callback function
             callbackContext.success(jsonButtons);
@@ -113,10 +123,11 @@ public class Flic extends CordovaPlugin {
             this.cordova.setActivityResultCallback(this);
             // Initiate grab button
             manager.initiateGrabButton(this.cordova.getActivity());
-            Log.d(LOG_TAG, "Grabbing button");
+            Log.d(LOG_TAG, "ACTION: Grabbing button");
 
             return true;
         } else if (ACTION_FORGET_BUTTON.equals(action)) {
+            Log.d(LOG_TAG, "ACTION: Forget Button");
             // Get buttonId from arguments
             final JSONObject options = args.getJSONObject(0);
             final String buttonId = options.getString("buttonId");
@@ -139,6 +150,7 @@ public class Flic extends CordovaPlugin {
 
             // Call callback function
             callbackContext.success();
+            Log.d(LOG_TAG, "ACTION: Enable Button");
 
             return true;
         } else if (ACTION_DISABLE_BUTTON.equals(action)) {
@@ -152,34 +164,30 @@ public class Flic extends CordovaPlugin {
 
             // Call callback function
             callbackContext.success();
+            Log.d(LOG_TAG, "ACTION: Disable Button");
 
             return true;
-        } else if (ACTION_WAIT_FOR_BUTTON_EVENT.equals(action)) {
-            // Keeps track of invoking callback context for later use
-            this.waitForButtonEventCallbackContext = callbackContext;
-
-            return true;
-        } else if (ACTION_TRIGGER_BUTTON_EVENT.equals(action)) {
-            // Keeps track of invoking callback context for later use
-            this.triggerButtonEventCallbackContext = callbackContext;
-
+        } else if (ACTION_MESSAGE_CHANNEL.equals(action)) {
+            Log.d(LOG_TAG, "ACTION: Message Channel OPEN");
+            messageChannel = callbackContext;
             return true;
         } else {
+            Log.w(LOG_TAG, "ACTION: UNKNOWN");
             callbackContext.error("Flic." + action + " is not a supported function.");
             return false;
         }
     }
 
     private void enableButton(FlicButton button) {
-        // Unregister button from any events
-        button.removeAllFlicButtonCallbacks();
-
-        // Register button for click, double click and hold events
-        button.addFlicButtonCallback(buttonCallback);
-        button.setFlicButtonCallbackFlags(FlicButtonCallbackFlags.CLICK_OR_DOUBLE_CLICK_OR_HOLD);
-
-        // Set active mode
-        button.setActiveMode(true);
+        if (button != null) {
+            button.registerListenForBroadcast(FlicBroadcastReceiverFlags.CLICK_OR_DOUBLE_CLICK_OR_HOLD);
+            Log.d(LOG_TAG, "SUCCESS: Registered a button " + button.getButtonId());
+            Log.d(LOG_TAG, "Registerd  FlicBroadcastReceiverFlags=" + FlicBroadcastReceiverFlags.CLICK_OR_DOUBLE_CLICK_OR_HOLD);
+            Toast.makeText(super.webView.getContext(), "Flic Button Registered", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.w(LOG_TAG, "WARNING: Did not register any button");
+            Toast.makeText(super.webView.getContext(), "WARNING: Did not register any button", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void disableButton(FlicButton button) {
@@ -188,6 +196,7 @@ public class Flic extends CordovaPlugin {
 
         // Set inactive mode
         button.setActiveMode(false);
+        sendButtonEvent("disabled", button);
     }
 
     private JSONObject createJSONButton(FlicButton button) {
@@ -225,47 +234,70 @@ public class Flic extends CordovaPlugin {
         return jsonButtonEvent;
     }
 
-    private FlicButtonCallback buttonCallback = new FlicButtonCallback() {
-        @Override
-        public void onButtonSingleOrDoubleClickOrHold(
-                FlicButton button,
-                boolean wasQueued,
-                int timeDiff,
-                boolean isSingleClick,
-                boolean isDoubleClick,
-                boolean isHold) {
-            String event = isSingleClick ? "singleClick" : (isDoubleClick ? "doubleClick" : "hold");
-            Log.d(LOG_TAG, "Received event: " + event);
-
-            JSONObject jsonButtonEvent = createJSONButtonEvent(button, event);
-            // Reports to waitForButtonEvent callback
-            if (waitForButtonEventCallbackContext != null) {
-                waitForButtonEventCallbackContext.success(jsonButtonEvent);
-                waitForButtonEventCallbackContext = null;
-            }
-            // Reports to triggerButtonEvent callback
-            if (triggerButtonEventCallbackContext != null) {
-                triggerButtonEventCallbackContext.success(jsonButtonEvent);
-                triggerButtonEventCallbackContext = null;
-            }
-        }
-
-    };
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         FlicButton button = manager.completeGrabButton(requestCode, resultCode, data);
 
         if (button != null) {
-                JSONObject jsonButton = createJSONButton(button);
-                Log.d(LOG_TAG, "Got a button: " + button.getButtonId()
-                        + ", color: " + button.getColor()
-                        + ", status: " + BUTTON_STATUS.values()[button.getConnectionStatus()].name());
-                // Register events for button
-                enableButton(button);
-                grabButtonCallbackContext.success(jsonButton);
-
+            JSONObject jsonButton = createJSONButton(button);
+            Log.d(LOG_TAG, "Got a button: " + button.getButtonId()
+                  + ", color: " + button.getColor()
+                  + ", status: " + BUTTON_STATUS.values()[button.getConnectionStatus()].name());
+            // Register events for button
+            enableButton(button);
+            grabButtonCallbackContext.success(jsonButton);
         }
     }
+    private void InitAppCredentials(JSONArray args) throws JSONException {
+        // Get app credentials from arguments
+        final JSONObject options = args.getJSONObject(0);
+        _appId = options.getString("appId");
+        _appSecret = options.getString("appSecret");
+        _appName = options.getString("appName");
 
+        setAppCredentials();
+    }
+    private void InitBroadcastReceiver() {
+        Log.d(LOG_TAG, "InitBroadcastReceiver()");
+
+        FlicBroadcastReceiver receiver = new FlicBroadcastReceiver() {
+            @Override
+            protected void onRequestAppCredentials(Context context) {
+                Log.d(LOG_TAG, "FlicBroadcastReceiver ***onRequestAppCredentials AppId: " + _appId);
+                setAppCredentials();
+            }
+            @Override
+            public void onButtonSingleOrDoubleClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick, boolean isHold) {
+                String action = isSingleClick ? "singleClick" : (isDoubleClick ? "doubleClick" : "hold");
+                Log.d(LOG_TAG, "onButtonSingleOrDoubleClickOrHold action: " + action);
+                sendButtonEvent(action, button);
+            }
+            @Override
+            public void onButtonRemoved(Context context, FlicButton button) {
+                Log.d(LOG_TAG, "onButtonRemoved");
+                sendButtonEvent("onButtonRemoved", button);
+            }
+        };
+
+        //Register the broadcast reciever
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FLICLIB_EVENT);
+        Log.d(LOG_TAG, "***Registering Receiver*** IntentFilter: " + FLICLIB_EVENT);
+        this.cordova.getActivity().getApplicationContext().registerReceiver(receiver, filter);
+    }
+    public void sendButtonEvent(String action, FlicButton button) {
+        Log.d(LOG_TAG, "Sending Event Event to Plugin Action: " + action + " Button: " + button);
+
+        JSONObject event = createJSONButtonEvent(button, action);
+
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, event);
+        pluginResult.setKeepCallback(true);
+        if (messageChannel != null) {
+            messageChannel.sendPluginResult(pluginResult);
+        }
+    }
+    public void setAppCredentials() {
+        Log.d(LOG_TAG, "Setting Flic App Credentials");
+        FlicManager.setAppCredentials(_appId, _appSecret, _appName);
+    }
 }
