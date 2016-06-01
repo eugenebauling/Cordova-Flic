@@ -2,7 +2,7 @@
 A Cordova plugin providing access to the Flic SDK
 
 ## Installation
-    $ cordova plugin add cordova-plugin-flic
+    $ cordova plugin add cordova-plugin-flic --variable URL_SCHEME=flic20
 
 Set android:minSdkVersion="19" or higher in AndroidManifest.xml
 
