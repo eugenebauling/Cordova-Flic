@@ -43,6 +43,7 @@ public class Flic extends CordovaPlugin {
     private CallbackContext onButtonClickCallback;
     private CallbackContext grabButtonCallbackContext;
     private static ArrayList<JSONObject> buttonCachedEvents;
+    private static FlicBroadcastReceiver mFlicReceiver;
 
     private enum BUTTON_STATUS {BUTTON_DISCONNECTED, BUTTON_CONNECTION_STARTED, BUTTON_CONNECTION_COMPLETED};
 
@@ -265,7 +266,13 @@ public class Flic extends CordovaPlugin {
     private void initBroadcastReceiver() {
         Log.d(TAG, "initBroadcastReceiver()");
 
-        FlicBroadcastReceiver receiver = new FlicBroadcastReceiver() {
+        // in case receiver is already registered
+        // unregister previous receiver first
+        if(this.mFlicReceiver != null){
+            this.cordova.getActivity().getApplicationContext().unregisterReceiver(this.mFlicReceiver);
+        }
+
+        this.mFlicReceiver = new FlicBroadcastReceiver() {
             @Override
             protected void onRequestAppCredentials(Context context) {
                 Log.d(TAG, "FlicBroadcastReceiver ***onRequestAppCredentials");
@@ -288,7 +295,7 @@ public class Flic extends CordovaPlugin {
         IntentFilter filter = new IntentFilter();
         filter.addAction(FLICLIB_EVENT);
         Log.d(TAG, "***Registering Receiver*** IntentFilter: " + FLICLIB_EVENT);
-        this.cordova.getActivity().getApplicationContext().registerReceiver(receiver, filter);
+        this.cordova.getActivity().getApplicationContext().registerReceiver(this.mFlicReceiver, filter);
     }
 
     public void sendButtonEvent(String action, FlicButton button) {
