@@ -28,6 +28,7 @@
 			</feature>
 		</config-file>
 		<source-file src="src/android/Flic.java" target-dir="src/com/jguix/cordova" />
+		<source-file src="src/android/PluginSettings.java" target-dir="src/com/jguix/cordova" />
 	</platform>
 	<!-- ios -->
 	<platform name="ios">
