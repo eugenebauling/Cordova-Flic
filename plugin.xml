@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-flic"
-	version="0.6.0">
+	version="0.7.0">
 	<name>Flic</name>
 	<description>A Cordova plugin providing access to the Flic SDK</description>
 	<license>Apache 2.0</license>
@@ -51,6 +51,9 @@
 					</array>
 				</dict>
 			</array>
+		</config-file>
+		<config-file target="*-Info.plist" parent="FlicUrlScheme">
+		  <string>$URL_SCHEME</string>
 		</config-file>
 		<config-file target="config.xml" parent="/*">
 			<feature name="Flic">
