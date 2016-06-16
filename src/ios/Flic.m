@@ -7,12 +7,14 @@
 #import "Flic.h"
 #import <Cordova/CDVAvailability.h>
 #import <fliclib/fliclib.h>
+#import <CoreLocation/CoreLocation.h>
 
-
-@interface Flic () <SCLFlicManagerDelegate, SCLFlicButtonDelegate>
+@interface Flic () <SCLFlicManagerDelegate, SCLFlicButtonDelegate, CLLocationManagerDelegate>
 @end
 
-@implementation Flic
+@implementation Flic {
+    CLLocationManager *locationManager;
+}
 
 static NSString * const pluginNotInitializedMessage = @"flic is not initialized";
 static NSString * const TAG = @"[TAF Flic] ";
@@ -35,7 +37,7 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 	NSString* APP_ID = [config objectForKey:@"appId"];
 	NSString* APP_SECRET = [config objectForKey:@"appSecret"];
 	
-    self.flicManager = [SCLFlicManager configureWithDelegate:self defaultButtonDelegate:self appID:APP_ID appSecret:APP_SECRET backgroundExecution:NO];
+    self.flicManager = [SCLFlicManager configureWithDelegate:self defaultButtonDelegate:self appID:APP_ID appSecret:APP_SECRET backgroundExecution:YES];
     
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:[self knownButtons]];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId ];
@@ -233,6 +235,29 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
         
         NSLog(@"handleOpenURL %@", url);
     }
+}
+
+// this logic help us to start app in the background
+// in case location was changed
+- (void) onAppTerminate{
+    locationManager = [[CLLocationManager alloc] init];
+    locationManager.delegate = self;
+    
+    if([locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
+        [locationManager startMonitoringSignificantLocationChanges];
+    } else {
+        [locationManager requestAlwaysAuthorization];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    if (status == kCLAuthorizationStatusAuthorizedAlways) {
+        [locationManager startMonitoringSignificantLocationChanges];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations; {
+    [[SCLFlicManager sharedManager] onLocationChange];
 }
 
 -(void)log:(NSString *)text
