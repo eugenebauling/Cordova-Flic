@@ -186,27 +186,29 @@ public class Flic extends CordovaPlugin {
     }
 
     private void disableButton(FlicButton button) {
+        Log.d(TAG, "disableButton");
+
         // Unregister button from any events
         button.removeAllFlicButtonCallbacks();
 
         // Set inactive mode
         button.setActiveMode(false);
-        sendButtonEvent("disabled", button);
     }
 
     private JSONObject createJSONButton(FlicButton button) {
-        String buttonId = null, color = null, status = null;
         JSONObject jsonButton = new JSONObject();
 
         try {
             if (button != null) {
-                buttonId = button.getButtonId();
-                color = button.getColor();
-                status = BUTTON_STATUS.values()[button.getConnectionStatus()].name();
+                String buttonId = button.getButtonId();
+                String color = button.getColor();
+                String status = BUTTON_STATUS.values()[button.getConnectionStatus()].name();
+
+                jsonButton.put("buttonId", buttonId);
+                jsonButton.put("color", color);
+                jsonButton.put("status", status);
             }
-            jsonButton.put("buttonId", buttonId);
-            jsonButton.put("color", color);
-            jsonButton.put("status", status);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -214,7 +216,7 @@ public class Flic extends CordovaPlugin {
         return jsonButton;
     }
 
-    private JSONObject createJSONButtonEvent(FlicButton button, String event) {
+    private JSONObject createJSONButtonEvent(FlicButton button, String event, boolean wasQueued, int timeDiff) {
         JSONObject jsonButtonEvent = new JSONObject();
 
         try {
@@ -222,6 +224,8 @@ public class Flic extends CordovaPlugin {
             jsonButton = createJSONButton(button);
             jsonButtonEvent.put("button", jsonButton);
             jsonButtonEvent.put("event", event);
+            jsonButtonEvent.put("wasQueued", wasQueued);
+            jsonButtonEvent.put("timeDiff", timeDiff);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -280,14 +284,13 @@ public class Flic extends CordovaPlugin {
             }
             @Override
             public void onButtonSingleOrDoubleClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick, boolean isHold) {
-                String action = isSingleClick ? "singleClick" : (isDoubleClick ? "doubleClick" : "hold");
-                Log.d(TAG, "onButtonSingleOrDoubleClickOrHold action: " + action);
-                sendButtonEvent(action, button);
+                String event = isSingleClick ? "singleClick" : (isDoubleClick ? "doubleClick" : "hold");
+                Log.d(TAG, "onButtonSingleOrDoubleClickOrHold event: " + event);
+                sendButtonEvent(button, event, wasQueued, timeDiff);
             }
             @Override
             public void onButtonRemoved(Context context, FlicButton button) {
                 Log.d(TAG, "onButtonRemoved");
-                sendButtonEvent("onButtonRemoved", button);
             }
         };
 
@@ -298,10 +301,10 @@ public class Flic extends CordovaPlugin {
         this.cordova.getActivity().getApplicationContext().registerReceiver(this.mFlicReceiver, filter);
     }
 
-    public void sendButtonEvent(String action, FlicButton button) {
+    public void sendButtonEvent(FlicButton button, String action, boolean wasQueued, int timeDiff) {
         Log.d(TAG, "Sending Event Event to Plugin Action: " + action + " Button: " + button);
 
-        JSONObject event = createJSONButtonEvent(button, action);
+        JSONObject event = createJSONButtonEvent(button, action, wasQueued, timeDiff);
 
         if(isMainActivityActive()){
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, event);

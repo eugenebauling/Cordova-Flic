@@ -58,16 +58,13 @@ The following functions are available:
 
     // Subscription to button events
 	Flic.onButtonClick(onFlicButtonPressed, onFlicButtonPressedError)
-	Flic.onButtonClick = 
-    document.addEventListener('flicButtonClick', this.onFlicButtonPressed, false);
-    document.addEventListener('flicButtonDblClick', this.onFlicButtonPressed, false);
-    document.addEventListener('flicButtonHold', this.onFlicButtonPressed, false);
 
     function onFlicButtonPressed(result) {
         console.log(result.event); // (String) singleClick or doubleClick or hold
-        console.log(result.button.buttonId); // (String) 70:d4:db:69:2f:4e
+        console.log(result.button.buttonId); // (String)
         console.log(result.button.color); // (String) green
-        console.log(result.button.status); // (String) BUTTON_CONNECTION_COMPLETED
+        console.log(result.wasQueued); // (Boolean) If the event was locally queued in the button because it was disconnected. After the connection is completed, the event will be sent with this parameter set to true.
+		console.log(result.timeDiff); // (Number) If the event was queued, the timeDiff will be the number of seconds since the event happened.
     }
 	
 	function onFlicButtonPressedError(err){

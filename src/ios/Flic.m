@@ -131,7 +131,7 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 {
     [self log:@"didReceiveButtonClick"];
     
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_SINGLECLICK button:button]];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_SINGLECLICK button:button queued:queued age:age]];
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
 }
@@ -140,7 +140,7 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 - (void)flicButton:(SCLFlicButton *)button didReceiveButtonDoubleClick:(BOOL)queued age:(NSInteger)age
 {
     [self log:@"didReceiveButtonDoubleClick"];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_DOUBLECLICK button:button]];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_DOUBLECLICK button:button queued:queued age:age]];
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
 }
@@ -149,17 +149,19 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 - (void)flicButton:(SCLFlicButton *)button didReceiveButtonHold:(BOOL)queued age:(NSInteger)age
 {
     [self log:@"didReceiveButtonHold"];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_HOLD button:button]];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_HOLD button:button queued:queued age:age]];
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
 }
 
-- (NSDictionary*)getButtonEventObject:(NSString *)event button:(SCLFlicButton *)button
+- (NSDictionary*)getButtonEventObject:(NSString *)event button:(SCLFlicButton *)button queued:(BOOL)queued age:(NSInteger)age
 {
     NSDictionary *buttonResult = [self getButtonJsonObject:button];
     NSDictionary *result = @{
                    @"event": event,
-                   @"button": buttonResult
+                   @"button": buttonResult,
+                   @"wasQueued": @(queued),
+                   @"timeDiff": [NSNumber numberWithInteger:age]
                 };
     
     return result;
@@ -182,16 +184,11 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 
 - (NSDictionary*)getButtonJsonObject:(SCLFlicButton *)button
 {
-    //NSString *colorString1 = [CIColor colorWithCGColor:button.color.CGColor].stringRepresentation;
-    //NSLog(@"colorString1: %@", colorString1);
-    
-    //NSString *colorString = [self hexStringForColor:button.color];
-    //NSLog(@"colorString: %@", colorString);
-    
     NSDictionary *result = @{
         @"buttonId": [button.buttonIdentifier UUIDString],
         @"name": button.userAssignedName,
-        @"color": @"white",
+        @"color": [self hexStringForColor:button.color],
+        @"colorHex": [self hexStringForColor:button.color],
         @"connectionState": [self connectionStateForButton:button]
         };
     
