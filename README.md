@@ -4,19 +4,19 @@ A Cordova plugin providing access to the Flic SDK
 ## Installation
     $ cordova plugin add cordova-plugin-flic  --variable URL_SCHEME=mycoolapp
 
-	Set android:minSdkVersion="19" or higher in config.xml for the Android
+Set android:minSdkVersion="19" or higher in config.xml for the Android
 	```xml
 	<preference name="android-minSdkVersion" value="19" />
 	```
 
-    $ cordova build android
+$ cordova build android
 
-	Set deployment-target = 8.0 or higher in config.xml for the iOS 
+Set deployment-target = 8.0 or higher in config.xml for the iOS 
 	```xml
 	<preference name="deployment-target" value="8.0" />
 	```
 
-	$ cordova build ios
+$ cordova build ios
 
 ## Plugin API
 It has been currently stripped to the minimum needed from a Javascript app.
