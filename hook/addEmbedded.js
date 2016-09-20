@@ -1,6 +1,6 @@
 'use strict';
 
-var xcode = require('xcode'),
+const xcode = require('xcode'),
     fs = require('fs'),
     path = require('path');
 
@@ -17,7 +17,7 @@ module.exports = function(context) {
             return;
         }
 
-        var files = fs.readdirSync(startPath);
+        const files=fs.readdirSync(startPath);
         var resultFiles = []
         for(var i=0;i<files.length;i++){
             var filename=path.join(startPath,files[i]);
@@ -41,7 +41,7 @@ module.exports = function(context) {
 
     function getFileIdAndRemoveFromFrameworks(myProj, fileBasename) {
         var fileId = '';
-        var pbxFrameworksBuildPhaseObjFiles = myProj.pbxFrameworksBuildPhaseObj(myProj.getFirstTarget().uuid).files;
+        const pbxFrameworksBuildPhaseObjFiles = myProj.pbxFrameworksBuildPhaseObj(myProj.getFirstTarget().uuid).files;
         for(var i=0; i<pbxFrameworksBuildPhaseObjFiles.length;i++) {
             var frameworkBuildPhaseFile = pbxFrameworksBuildPhaseObjFiles[i];
             if(frameworkBuildPhaseFile.comment && frameworkBuildPhaseFile.comment.indexOf(fileBasename) != -1) {
@@ -54,7 +54,7 @@ module.exports = function(context) {
     }
 
     function getFileRefFromName(myProj, fName) {
-        var fileReferences = myProj.hash.project.objects['PBXFileReference'];
+        const fileReferences = myProj.hash.project.objects['PBXFileReference'];
         var fileRef = '';
         for(var ref in fileReferences) {
             if(ref.indexOf('_comment') == -1) {
@@ -68,33 +68,34 @@ module.exports = function(context) {
         return fileRef;
     }
 
-    var xcodeProjPath = fromDir('platforms/ios', '.xcodeproj', false);
-    var projectPath = xcodeProjPath + '/project.pbxproj';
-    var myProj = xcode.project(projectPath);
+    const xcodeProjPath = fromDir('platforms/ios','.xcodeproj', false);
+    const projectPath = xcodeProjPath + '/project.pbxproj';
+    const myProj = xcode.project(projectPath);
 
-    function addRunpathSearchBuildProperty(proj) {
-        var LD_RUNPATH_SEARCH_PATHS = proj.getBuildProperty("LD_RUNPATH_SEARCH_PATHS");
-        if(!LD_RUNPATH_SEARCH_PATHS) {
-            proj.addBuildProperty("LD_RUNPATH_SEARCH_PATHS", "\"$(inherited) @executable_path/Frameworks\"");
-        } else if(LD_RUNPATH_SEARCH_PATHS.indexOf("@executable_path/Frameworks") == -1) {
-            var newValue = LD_RUNPATH_SEARCH_PATHS.substr(0,LD_RUNPATH_SEARCH_PATHS.length-1);
-            newValue += ' @executable_path/Frameworks\"';
-            proj.updateBuildProperty("LD_RUNPATH_SEARCH_PATHS", newValue);
-        }
+    function addRunpathSearchBuildProperty(proj, build) {
+       const LD_RUNPATH_SEARCH_PATHS =  proj.getBuildProperty("LD_RUNPATH_SEARCH_PATHS", build);
+       if(!LD_RUNPATH_SEARCH_PATHS) {
+          proj.addBuildProperty("LD_RUNPATH_SEARCH_PATHS", "\"$(inherited) @executable_path/Frameworks\"", build);
+       } else if(LD_RUNPATH_SEARCH_PATHS.indexOf("@executable_path/Frameworks") == -1) {
+          var newValue = LD_RUNPATH_SEARCH_PATHS.substr(0,LD_RUNPATH_SEARCH_PATHS.length-1);
+          newValue += ' @executable_path/Frameworks\"';
+          proj.updateBuildProperty("LD_RUNPATH_SEARCH_PATHS", newValue, build);
+       }
     }
 
     myProj.parseSync();
-    addRunpathSearchBuildProperty(myProj);
+    addRunpathSearchBuildProperty(myProj, "Debug");
+    addRunpathSearchBuildProperty(myProj, "Release");
 
     // unquote (remove trailing ")
     var projectName = myProj.getFirstTarget().firstTarget.name.substr(1);
     projectName = projectName.substr(0, projectName.length-1); //Removing the char " at beginning and the end.
 
-    var groupName = 'Embed Frameworks ' + context.opts.plugin.id;
-    var pluginPathInPlatformIosDir = projectName + '/Plugins/' + context.opts.plugin.id;
+    const groupName = 'Embed Frameworks ' + context.opts.plugin.id;
+    const pluginPathInPlatformIosDir = projectName + '/Plugins/' + context.opts.plugin.id;
 
     process.chdir('./platforms/ios');
-    var frameworkFilesToEmbed = fromDir(pluginPathInPlatformIosDir, '.framework', false, true);
+    const frameworkFilesToEmbed = fromDir(pluginPathInPlatformIosDir ,'.framework', false, true);
     process.chdir('../../');
 
     if(!frameworkFilesToEmbed.length) return;
