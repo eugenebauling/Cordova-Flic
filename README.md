@@ -2,11 +2,16 @@
 A Cordova plugin providing access to the Flic SDK
 
 ## Installation
-    $ cordova plugin add cordova-plugin-flic
+    $ cordova plugin add cordova-plugin-flic  --variable URL_SCHEME=mycoolapp
 
 Set android:minSdkVersion="19" or higher in AndroidManifest.xml
 
+Set deployment-target = 8.0 or higher for the iOS 
+	<preference name="deployment-target" value="8.0" />
+
+
     $ cordova build android
+	$ cordova build android
 
 ## Plugin API
 It has been currently stripped to the minimum needed from a Javascript app.
@@ -70,18 +75,3 @@ The following functions are available:
 	function onFlicButtonPressedError(err){
 		console.log(err);
 	}
-## Sample app
-
-Copy the files from the example folder to your project's platforms/android/assets/wwww folder.
-
-![Sample app screenshot](/sample/sample_app_screenshot.jpg)
-
-## Roadmap
-Next steps:
-
-* Implement function forgetButton(buttonId). Forget a button, which will never be associated to the app until it is grabbed again.
-* Implement function enableButton(buttonId). Subscribe button to single click, double click and hold events.
-* Implement function disableButton(buttonId). Unsubscribe button to single click, double click and hold events. Unlike when forgetting the button, the button will still be associated the app.
-* Implement function getButton(buttonId). Get a button by its device ID.
-* Implement function setActiveMode(buttonId). Set button active mode.
-* Implement function for more refined event subscription (onButtonClickOrHold, onButtonSingleOrDoubleClick, onButtonSingleOrDoubleClickOrHold, onButtonUpOrDown, onConnectionCompleted, onConnectionFailed, onConnectionStarted, onDisconnect, onReadRemoteRSSI)
