@@ -9,14 +9,14 @@ Set android:minSdkVersion="19" or higher in config.xml for the Android
 	<preference name="android-minSdkVersion" value="19" />
 ```
 
-$ cordova build android
+	$ cordova build android
 
 Set deployment-target = 8.0 or higher in config.xml for the iOS 
 ```xml
 	<preference name="deployment-target" value="8.0" />
 ```
 
-$ cordova build ios
+	$ cordova build ios
 
 ## Plugin API
 It has been currently stripped to the minimum needed from a Javascript app.
