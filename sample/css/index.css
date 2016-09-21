@@ -34,7 +34,6 @@ body {
     width:100%;
 }
 
-/* Portrait layout (default) */
 .app {
     position: absolute;
     left: 50%;
@@ -45,104 +44,34 @@ body {
     margin: -225px 0px 0px -112px;
 }
 
-.event {
-    border-radius:4px;
-    -webkit-border-radius:4px;
-    color:#FFFFFF;
-    font-size:12px;
-    margin:0px 0px;
-    padding:2px 0px;
+.btn{
+    border: 4px solid;
+    background: #ccc;
+    color: #111;
+    border-radius: 5px;
 }
 
-.event.listening {
-    background-color:#333333;
-    display:block;
+.shake {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
-.event.received {
-    background-color:#4B946A;
-    display:none;
-}
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
 
-@keyframes fade {
-    from { opacity: 1.0; }
-    50% { opacity: 0.4; }
-    to { opacity: 1.0; }
-}
- 
-@-webkit-keyframes fade {
-    from { opacity: 1.0; }
-    50% { opacity: 0.4; }
-    to { opacity: 1.0; }
-}
- 
-.blink {
-    animation:fade 3000ms infinite;
-    -webkit-animation:fade 3000ms infinite;
-}
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
 
-.floating {
-    float: left;
-}
-
-.btn {
-    width: 56px;
-    height: 56px;
-}
-
-.cpt {
-    width: 168px;
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    flex-direction: column; /* column | row */
-}
-
-.clear {
-    height: 56px;
-    display : flex;
-}
-
-.button_green {
-    background-image: url("../img/button_green.png");
-}
-
-.button_yellow {
-    background-image: url("../img/button_yellow.png");
-}
-
-.button_turquoise {
-    background-image: url("../img/button_turquoise.png");
-}
-
-.button_white {
-    background-image: url("../img/button_white.png");
-}
-
-.button_black {
-    background-image: url("../img/button_black.png");
-}
-
-.button_green_idle {
-    background-image: url("../img/button_green_idle.png");
-}
-
-.button_yellow_idle {
-    background-image: url("../img/button_yellow_idle.png");
-}
-
-.button_turquoise_idle {
-    background-image: url("../img/button_turquoise_idle.png");
-}
-
-.button_white_idle {
-    background-image: url("../img/button_white_idle.png");
-}
-
-.button_black_idle {
-    background-image: url("../img/button_black_idle.png");
-}
-
-.button_undetermined {
-    background-image: url("../img/button_undetermined.png");
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
 }
