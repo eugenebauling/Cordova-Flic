@@ -3,8 +3,9 @@ A Cordova plugin providing access to the Flic SDK (Android and iOS)
 
 ## Installation
 ```
-$ cordova plugin add cordova-plugin-flic  --variable URL_SCHEME=mycoolapp
+$ cordova plugin add https://github.com/dukhanov/Cordova-Flic --variable URL_SCHEME=mycoolapp
 ```
+### Android
 
 Set `android:minSdkVersion="19"` or higher in config.xml for the Android
 ```xml
@@ -13,9 +14,18 @@ Set `android:minSdkVersion="19"` or higher in config.xml for the Android
 
 	$ cordova build android
 
+### iOS
+
 Set `deployment-target=8.0` or higher in config.xml for the iOS 
+
 ```xml
 	<preference name="deployment-target" value="8.0" />
+```
+
+Make sure, that you have installed [node-xcode](https://www.npmjs.com/package/xcode) version 0.8.7 or higher on your Mac
+
+```
+$ npm i xcode
 ```
 
 	$ cordova build ios
@@ -33,10 +43,10 @@ The following functions are available:
 	* reloadOnFlicEvent: in case you want to start the App via Flic event (Android only, Boolean, default: false)
   * success: called on function success
   * error: called on function error
-* Flic.getKnownButtons(options). Get known buttons. Returns the list of buttons grabbed in a previous run of the app
+* Flic.getKnownButtons(success, error). Get known buttons. Returns the list of buttons grabbed in a previous run of the app
   * success: called on function success
   * error: called on function error
-* Flic.grabButton(options). Grab a button and register it for receiving single click, double click and hold events. Returns the grabbed button
+* Flic.grabButton(success, error). Grab a button and register it for receiving single click, double click and hold events. Returns the grabbed button
   * success: called on function success
   * error: called on function error
 * Flic.onButtonClick(onButtonPressed, onButtonPressedError)
@@ -76,10 +86,10 @@ function onFlicButtonPressedError(err){
 }
 
 var config = {
-    appId: 'your app id'
-    appSecret: 'your app client secret' 
-    appName: 'your app name'
-    reloadOnFlicEvent: true
+    appId: 'your app id',
+    appSecret: 'your app client secret',
+    appName: 'your app name',
+    reloadOnFlicEvent: true,
 }
 
 // Init flic

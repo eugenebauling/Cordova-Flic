@@ -189,7 +189,8 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
         @"name": button.userAssignedName,
         @"color": [self hexStringForColor:button.color],
         @"colorHex": [self hexStringForColor:button.color],
-        @"connectionState": [self connectionStateForButton:button]
+        @"connectionState": [self connectionStateForButton:button],
+        @"status": [self connectionStateForButton:button]
         };
     
     return result;
