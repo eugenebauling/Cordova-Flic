@@ -27,9 +27,7 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-        document.addEventListener('flicButtonClick', this.onFlicButtonPressed, false);
-        document.addEventListener('flicButtonDblClick', this.onFlicButtonPressed, false);
-        document.addEventListener('flicButtonHold', this.onFlicButtonPressed, false);
+        document.addEventListener('resume', this.onAppResume, false);
         document.getElementById('myBtn1').addEventListener('click', this.grabButton);
     },
     // deviceready Event Handler
@@ -37,82 +35,95 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        console.log('Received Event: ' + id);
-
-        var appId = "dbcce1f9-c4b9-41c1-89fb-2f36c8577706";
-        var appSecret = "f17c4448-093b-4ba8-951a-bb40113b1900";
-        var appName = "Table Football";
+        var config = {
+            appId: 'dbcce1f9-c4b9-41c1-89fb-2f36c8577706',
+            appSecret: 'f17c4448-093b-4ba8-951a-bb40113b1900',
+            appName: 'your app name',
+            reloadOnFlicEvent: true
+        }
 
         console.log('Starting Flic Manager');
 
+        function successInit(result) {
+            console.log('Flic init succeeded');
+            document.querySelector('#deviceready').setAttribute('style', 'display:block;');
+           
+            Flic.onButtonClick(app.onFlicButtonPressed, function(errorMessage){
+                console.log(errorMessage)
+            })
+            app.renderKnownButtons()
+        }
+
+        function errorInit(message) {
+            console.log('Flic init failed: ' + message);
+        }
+
         try {
-            Flic.init(appId, appSecret, appName, {
-                success: function(result) {
-                    console.log('Flic init succeeded');
-                    listeningElement.setAttribute('style', 'display:none;');
-                    receivedElement.setAttribute('style', 'display:block;');
-
-                    Flic.getKnownButtons({
-                        success: function(buttons) {
-                            console.log('Flic getKnownButtons succeeded');
-                            console.log('Flic known buttons: ' + JSON.stringify(buttons));
-                            for (var i = 0; i < buttons.length; i += 1) {
-                                var button = buttons[i];
-                                var buttonElement = document.getElementById(button.color);
-                                var captionElement = document.getElementById('caption_' + button.color);
-                                buttonElement.setAttribute('class', 'floating btn button_' + button.color + '_idle');
-                                captionElement.innerHTML = 'IDLE';
-                            }
-                        },
-                        error: function(message) {
-                            console.log('Flic getKnownButtons failed: ' + message);
-                        }
-                    });
-
-                },
-                error: function(message) {
-                    console.log('Flic init failed: ' + message);
-                }
-            });
+            Flic.init(config, successInit, errorInit);
         } catch (e) {
             console.log('Flic exception: ' + e.message);
         }
+    },
+    onAppResume: function() {
+        console.log('App resume');
+        app.renderKnownButtons();
+    },
+    onFlicButtonPressed: function(result) {
+        console.log(result.event); // (String) singleClick or doubleClick or hold
+        console.log(result.button.buttonId); // (String)
+        console.log(result.button.color); // (String) green
+        console.log(result.wasQueued); // (Boolean) If the event was locally queued in the button because it was disconnected. After the connection is completed, the event will be sent with this parameter set to true.
+        console.log(result.timeDiff); // (Number) If the event was queued, the timeDiff will be the number of seconds since the event happened.
 
+        var button = document.querySelector('#' + app.escapeId(result.button.buttonId));
+        if(button) {
+            button.classList.remove('shake'); 
+            setTimeout(function(){
+                button.classList.add('shake')
+            }, 20)
+        } else {
+            console.log('button not found')
+        }
     },
 
-    onFlicButtonPressed: function(event) {
-        var buttonElement = document.getElementById(event.color);
-        var captionElement = document.getElementById('caption_' + event.color);
-        buttonElement.setAttribute('class', 'floating btn button_' + event.color);
-        captionElement.innerHTML = event.type;
-
-        setTimeout(function() {
-            buttonElement.setAttribute('class', 'floating btn button_' + event.color + '_idle');
-            captionElement.innerHTML = 'IDLE';
-        }, 2000);
+    renderKnownButtons: function() {
+        Flic.getKnownButtons(function(buttons) {
+            console.log('Flic getKnownButtons succeeded');
+            console.log('Flic known buttons: ' + JSON.stringify(buttons));
+            var buttonsCont = document.querySelector('#buttons');
+            buttonsCont.innerHTML = '';
+            for (var i = 0; i < buttons.length; i += 1) {
+                var button = buttons[i];
+                var element = document.createElement('div');
+                element.classList.add('btn')
+                if (button.colorHex) {
+                    element.style.borderColor = '#' + button.colorHex;
+                } else {
+                    element.style.borderColor = button.color;
+                } 
+                element.innerHTML = 'Button status: ' + button.status;
+                element.id = app.escapeId(button.buttonId);
+                buttonsCont.appendChild(element);
+            }
+        },
+        function(message) {
+            console.log('Flic getKnownButtons failed: ' + message);
+        });
     },
 
     grabButton: function() {
-        Flic.grabButton({
-            success: function(button) {
-                console.log('Flic grabButton succeeded');
-                console.log('Flic grabbed button: ' + JSON.stringify(button));
-                var buttonElement = document.getElementById(button.color);
-                buttonElement.setAttribute('class', 'floating button_' + button.color + '_idle');
-            },
-            error: function(message) {
-                console.log('Flic grabButton failed: ' + message);
-            }
+        Flic.grabButton(function(button) {
+            console.log('Flic grabButton succeeded');
+            console.log('Flic grabbed button: ' + JSON.stringify(button));
+            app.renderKnownButtons()
+        },
+        function(message) {
+            console.log('Flic grabButton failed: ' + message);
         });
+    },
 
+    escapeId: function(id) {
+        return id ? id.replace(/[^a-zA-Z]/g, '') : null
     }
 };
 

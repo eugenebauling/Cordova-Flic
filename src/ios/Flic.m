@@ -7,12 +7,14 @@
 #import "Flic.h"
 #import <Cordova/CDVAvailability.h>
 #import <fliclib/fliclib.h>
+#import <CoreLocation/CoreLocation.h>
 
-
-@interface Flic () <SCLFlicManagerDelegate, SCLFlicButtonDelegate>
+@interface Flic () <SCLFlicManagerDelegate, SCLFlicButtonDelegate, CLLocationManagerDelegate>
 @end
 
-@implementation Flic
+@implementation Flic {
+    CLLocationManager *locationManager;
+}
 
 static NSString * const pluginNotInitializedMessage = @"flic is not initialized";
 static NSString * const TAG = @"[TAF Flic] ";
@@ -35,7 +37,7 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 	NSString* APP_ID = [config objectForKey:@"appId"];
 	NSString* APP_SECRET = [config objectForKey:@"appSecret"];
 	
-    self.flicManager = [SCLFlicManager configureWithDelegate:self defaultButtonDelegate:self appID:APP_ID appSecret:APP_SECRET backgroundExecution:NO];
+    self.flicManager = [SCLFlicManager configureWithDelegate:self defaultButtonDelegate:self appID:APP_ID appSecret:APP_SECRET backgroundExecution:YES];
     
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:[self knownButtons]];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId ];
@@ -129,7 +131,7 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 {
     [self log:@"didReceiveButtonClick"];
     
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_SINGLECLICK button:button]];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_SINGLECLICK button:button queued:queued age:age]];
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
 }
@@ -138,7 +140,7 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 - (void)flicButton:(SCLFlicButton *)button didReceiveButtonDoubleClick:(BOOL)queued age:(NSInteger)age
 {
     [self log:@"didReceiveButtonDoubleClick"];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_DOUBLECLICK button:button]];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_DOUBLECLICK button:button queued:queued age:age]];
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
 }
@@ -147,17 +149,19 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 - (void)flicButton:(SCLFlicButton *)button didReceiveButtonHold:(BOOL)queued age:(NSInteger)age
 {
     [self log:@"didReceiveButtonHold"];
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_HOLD button:button]];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getButtonEventObject:BUTTON_EVENT_HOLD button:button queued:queued age:age]];
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:self.onButtonClickCallbackId];
 }
 
-- (NSDictionary*)getButtonEventObject:(NSString *)event button:(SCLFlicButton *)button
+- (NSDictionary*)getButtonEventObject:(NSString *)event button:(SCLFlicButton *)button queued:(BOOL)queued age:(NSInteger)age
 {
     NSDictionary *buttonResult = [self getButtonJsonObject:button];
     NSDictionary *result = @{
                    @"event": event,
-                   @"button": buttonResult
+                   @"button": buttonResult,
+                   @"wasQueued": @(queued),
+                   @"timeDiff": [NSNumber numberWithInteger:age]
                 };
     
     return result;
@@ -180,17 +184,13 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
 
 - (NSDictionary*)getButtonJsonObject:(SCLFlicButton *)button
 {
-    //NSString *colorString1 = [CIColor colorWithCGColor:button.color.CGColor].stringRepresentation;
-    //NSLog(@"colorString1: %@", colorString1);
-    
-    //NSString *colorString = [self hexStringForColor:button.color];
-    //NSLog(@"colorString: %@", colorString);
-    
     NSDictionary *result = @{
         @"buttonId": [button.buttonIdentifier UUIDString],
         @"name": button.userAssignedName,
-        @"color": @"white",
-        @"connectionState": [self connectionStateForButton:button]
+        @"color": [self hexStringForColor:button.color],
+        @"colorHex": [self hexStringForColor:button.color],
+        @"connectionState": [self connectionStateForButton:button],
+        @"status": [self connectionStateForButton:button]
         };
     
     return result;
@@ -233,6 +233,29 @@ static NSString * const BUTTON_EVENT_HOLD = @"hold";
         
         NSLog(@"handleOpenURL %@", url);
     }
+}
+
+// this logic help us to start app in the background
+// in case location was changed
+- (void) onAppTerminate{
+    locationManager = [[CLLocationManager alloc] init];
+    locationManager.delegate = self;
+    
+    if([locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
+        [locationManager startMonitoringSignificantLocationChanges];
+    } else {
+        [locationManager requestAlwaysAuthorization];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    if (status == kCLAuthorizationStatusAuthorizedAlways) {
+        [locationManager startMonitoringSignificantLocationChanges];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations; {
+    [[SCLFlicManager sharedManager] onLocationChange];
 }
 
 -(void)log:(NSString *)text
