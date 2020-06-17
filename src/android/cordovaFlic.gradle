@@ -1,5 +1,6 @@
 repositories{    
 	jcenter()
+	dirs 'src/main/libs'
 }
 
 dependencies {
