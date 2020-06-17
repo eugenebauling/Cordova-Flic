@@ -1,6 +1,8 @@
 repositories{    
 	jcenter()
-	dirs 'src/main/libs'
+	flatDir{
+		dirs 'src/main/libs'
+	}
 }
 
 dependencies {
