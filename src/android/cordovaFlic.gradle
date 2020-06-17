@@ -1,12 +1,9 @@
 repositories{    
 	jcenter()
-	flatDir{
-		dirs 'libs'
-	}
 }
 
 dependencies {
-	implementation (name:'fliclib-release', ext:'aar')
+	implementation fileTree(dir: 'libs', include: ['*.aar'])
 }
 
 android {
