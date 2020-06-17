@@ -6,7 +6,7 @@ repositories{
 }
 
 dependencies {
-	compile(name:'fliclib-release', ext:'aar')
+	implementation (name:'fliclib-release', ext:'aar')
 }
 
 android {
