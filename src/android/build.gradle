@@ -3,5 +3,5 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.github.50ButtonsEach:fliclib-android:ec1cdc3fbe'
+    implementation 'io.flic:flic2lib-android:1.+'
 }
