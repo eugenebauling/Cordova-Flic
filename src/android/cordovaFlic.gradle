@@ -6,7 +6,7 @@ repositories{
 }
 
 dependencies {
-    implementation(name:'fliclib-release',ext:'aar')
+    implementation fileTree(dir: 'libs', include: ['*.aar'], exclude: [])
 }
 
 android {
