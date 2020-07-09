@@ -3,5 +3,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.flic:flic2lib-android:1.+'
+    implementation(name:'fliclib-release',ext:'aar')
 }
