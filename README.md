@@ -1,5 +1,5 @@
 # Cordova-Flic
-A Cordova plugin providing access to the Flic SDK (Android and iOS)
+A Cordova plugin providing access to the Flic SDK (Android)
 
 ### Android
 
