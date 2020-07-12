@@ -1,4 +1,4 @@
-package com.jguix.cordova;
+package com.elementeq.cordova;
 
 import android.content.SharedPreferences;
 import android.util.Log;

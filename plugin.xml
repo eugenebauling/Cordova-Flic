@@ -2,8 +2,8 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-flic"
-	version="1.0.3">
-	<name>Flic</name>
+	version="0.0.1">
+	<name>ElementeqFlic</name>
 	<description>A Cordova plugin providing access to the Flic SDK</description>
 	<license>Apache 2.0</license>
 	<keywords>cordova,flic,smart,button,sdk</keywords>
@@ -13,7 +13,6 @@
 	<engines>
         <engine name="cordova" version=">=7.1.0"/>
         <engine name="cordova-android" version=">=6.3.0"/>
-        <engine name="cordova-ios" version=">=4.4.0"/>
     </engines>
 	
 	<js-module src="www/Flic.js" name="Flic">
@@ -24,53 +23,16 @@
 	<platform name="android">
 		<!-- Add plugin dependencies -->
 		<framework src="src/android/cordovaFlic.gradle" custom="true" type="gradleReference" />
-        <resource-file src="libs/fliclib-release.aar" target="libs/fliclib-release.aar" />
+        <resource-file src="libs/poiclib-release.aar" target="libs/poiclib-release.aar" />
 		<config-file target="res/xml/config.xml" parent="/*">
 			<!-- The feature's name attribute should match what you specify as the JavaScript exec call's service parameter.
 				The value attribute should match the name of the plugin's Java class.
 			-->
 			<feature name="Flic" >
-				<param name="android-package" value="com.jguix.cordova.Flic"/>
+				<param name="android-package" value="com.elementeq.cordova.Flic"/>
 			</feature>
 		</config-file>
-		<source-file src="src/android/Flic.java" target-dir="src/com/jguix/cordova" />
-		<source-file src="src/android/PluginSettings.java" target-dir="src/com/jguix/cordova" />
+		<source-file src="src/android/Flic.java" target-dir="src/com/elementeq/cordova" />
+		<source-file src="src/android/PluginSettings.java" target-dir="src/com/elementeq/cordova" />
 	</platform>
-	<!-- ios -->
-	<platform name="ios">
-		<preference name="URL_SCHEME" />
-		<config-file target="*-Info.plist" parent="UIBackgroundModes">
-			<array>
-				<string>bluetooth-central</string>
-			</array>
-		</config-file>
-		<config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
-			<array>
-				<string>flic20</string>
-			</array>
-		</config-file>
-		<config-file target="*-Info.plist" parent="CFBundleURLTypes">
-			<array>
-				<dict>
-					<key>CFBundleURLSchemes</key>
-					<array>
-						<string>$URL_SCHEME</string>
-					</array>
-				</dict>
-			</array>
-		</config-file>
-		<config-file target="*-Info.plist" parent="FlicUrlScheme">
-		  <string>$URL_SCHEME</string>
-		</config-file>
-		<config-file target="config.xml" parent="/*">
-			<feature name="Flic">
-				<param name="ios-package" value="Flic"/>
-				<param name="onload" value="true" />
-			</feature>
-		</config-file>
-		<framework src="src/ios/fliclib.framework" custom="true" embed="true" />
-			
-		<source-file src="src/ios/Flic.m" />
-		<header-file src="src/ios/Flic.h" />
-	</platform> 
 </plugin>

@@ -1,17 +1,16 @@
 {
-  "name": "cordova-plugin-flic",
+  "name": "elementeq-plugin-flic",
   "version": "1.0.3",
   "description": "A Cordova plugin providing access to the Flic SDK",
   "cordova": {
-    "id": "cordova-plugin-flic",
+    "id": "elementeq-plugin-flic",
     "platforms": [
-      "android",
-      "ios"
+      "android"
     ]
   },
   "repository": {
     "type": "git",
-    "url": "https://www.github.com/dukhanov/Cordova-Flic"
+    "url": "https://github.com/eugenebauling/Cordova-Flic"
   },
   "keywords": [
     "cordova",
@@ -20,9 +19,8 @@
     "button",
     "sdk",
     "ecosystem:cordova",
-    "cordova-android",
-    "cordova-ios"
+    "cordova-android"
   ],
-  "author": "jguix, dukhanov",
+  "author": "jguix, dukhanov, eugenebauling",
   "license": "Apache 2.0"
 }

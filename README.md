@@ -1,36 +1,15 @@
 # Cordova-Flic
 A Cordova plugin providing access to the Flic SDK (Android and iOS)
 
-## Installation
-
-```
-    $ cordova plugin add cordova-plugin-flic --variable URL_SCHEME=flic20
-```
-
 ### Android
 
 Set `android:minSdkVersion="19"` or higher in config.xml for the Android
 ```xml
-	<preference name="android-minSdkVersion" value="19" />
+	<preference name="android-minSdkVersion" value="23" />
 ```
 
 	$ cordova build android
 
-### iOS
-
-Set `deployment-target=8.0` or higher in config.xml for the iOS 
-
-```xml
-	<preference name="deployment-target" value="8.0" />
-```
-
-Make sure, that you have installed [node-xcode](https://www.npmjs.com/package/xcode) version 0.8.7 or higher on your Mac
-
-```
-$ npm i xcode
-```
-
-	$ cordova build ios
 
 ## Plugin API
 It has been currently stripped to the minimum needed from a Javascript app.
