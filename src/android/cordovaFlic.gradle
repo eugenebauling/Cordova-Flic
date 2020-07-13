@@ -7,6 +7,7 @@ repositories{
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.aar'], exclude: [])
+        implementation fileTree(dir: 'src\\main\\libs', include: ['*.aar', '*.jar'], exclude: [])
 }
 
 android {
